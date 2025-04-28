@@ -1,0 +1,292 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+"""
+GC-Forged Pylot Agent
+=====================
+
+Основной модуль автономного агента для системы GC-Forged Pylot.
+Агент интегрирует компоненты ядра системы и моста для взаимодействия
+с внешними системами и API.
+
+Автор: GC-Forged Pylot Team
+Дата: 2025
+Лицензия: MIT
+"""
+
+import os
+import sys
+import logging
+import argparse
+import json
+from typing import Dict, List, Any, Optional, Union, Tuple
+
+# Добавляем путь к родительскому каталогу в sys.path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Импорт компонентов ядра
+from core.executor import Executor
+from core.memory import Memory
+from core.planner import Planner
+from core.reasoning import Reasoner
+from core.llm_interface import LLMInterface
+
+# Импорт компонентов моста
+from bridge.api_connector import APIConnector
+from bridge.tool_manager import ToolManager
+from bridge.feedback_handler import FeedbackHandler
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler("pylot_agent.log")
+    ]
+)
+
+logger = logging.getLogger("PylotAgent")
+
+
+class PylotAgent:
+    """
+    Главный класс автономного агента GC-Forged Pylot.
+    
+    Агент объединяет различные компоненты системы для обеспечения
+    интеллектуального взаимодействия с пользователем и внешними системами.
+    """
+    
+    def __init__(self, config_path: str = "config/agent_config.json"):
+        """
+        Инициализирует агента с заданной конфигурацией.
+        
+        Args:
+            config_path: Путь к файлу конфигурации агента в формате JSON.
+        """
+        logger.info("Инициализация агента Pylot...")
+        self.config = self._load_config(config_path)
+        
+        # Инициализация компонентов ядра
+        self.llm = LLMInterface(self.config.get("llm", {}))
+        self.memory = Memory(self.config.get("memory", {}))
+        self.reasoner = Reasoner(self.llm, self.config.get("reasoning", {}))
+        self.planner = Planner(self.llm, self.reasoner, self.config.get("planning", {}))
+        self.executor = Executor(self.config.get("execution", {}))
+        
+        # Инициализация компонентов моста
+        self.api_connector = APIConnector(self.config.get("api", {}))
+        self.tool_manager = ToolManager(self.config.get("tools", {}))
+        self.feedback_handler = FeedbackHandler(self.config.get("feedback", {}))
+        
+        # Состояние агента
+        self.conversation_history = []
+        self.current_plan = None
+        self.active = False
+        
+        logger.info("Агент Pylot успешно инициализирован")
+    
+    def _load_config(self, config_path: str) -> Dict[str, Any]:
+        """
+        Загружает конфигурацию агента из JSON-файла.
+        
+        Args:
+            config_path: Путь к файлу конфигурации.
+            
+        Returns:
+            Словарь с параметрами конфигурации.
+            
+        Raises:
+            FileNotFoundError: Если файл конфигурации не найден.
+            json.JSONDecodeError: Если файл конфигурации содержит некорректный JSON.
+        """
+        try:
+            with open(config_path, "r", encoding="utf-8") as f:
+                config = json.load(f)
+            logger.info(f"Конфигурация загружена из {config_path}")
+            return config
+        except FileNotFoundError:
+            logger.warning(f"Файл конфигурации {config_path} не найден. Используются параметры по умолчанию.")
+            return {}
+        except json.JSONDecodeError:
+            logger.error(f"Ошибка при разборе файла конфигурации {config_path}. Используются параметры по умолчанию.")
+            return {}
+    
+    def start(self) -> None:
+        """Запускает агента и подготавливает его к взаимодействию."""
+        logger.info("Запуск агента Pylot")
+        self.active = True
+        self._load_tools()
+        self._initialize_memory()
+        self._connect_apis()
+    
+    def stop(self) -> None:
+        """Останавливает агента и освобождает ресурсы."""
+        logger.info("Остановка агента Pylot")
+        self.active = False
+        self._save_conversation_history()
+        self._disconnect_apis()
+    
+    def _load_tools(self) -> None:
+        """Загружает доступные инструменты для агента."""
+        tool_configs = self.config.get("tools", {}).get("available_tools", [])
+        for tool_config in tool_configs:
+            self.tool_manager.register_tool(tool_config)
+        logger.info(f"Загружено {len(tool_configs)} инструментов")
+    
+    def _initialize_memory(self) -> None:
+        """Инициализирует систему памяти агента."""
+        memory_type = self.config.get("memory", {}).get("type", "default")
+        logger.info(f"Инициализация памяти типа '{memory_type}'")
+        self.memory.initialize()
+    
+    def _connect_apis(self) -> None:
+        """Устанавливает соединения с внешними API."""
+        api_configs = self.config.get("api", {}).get("endpoints", {})
+        for api_name, api_config in api_configs.items():
+            self.api_connector.connect(api_name, api_config)
+        logger.info(f"Установлено соединение с {len(api_configs)} API")
+    
+    def _disconnect_apis(self) -> None:
+        """Закрывает соединения с внешними API."""
+        self.api_connector.disconnect_all()
+        logger.info("Все соединения с API закрыты")
+    
+    def _save_conversation_history(self) -> None:
+        """Сохраняет историю взаимодействия с пользователем."""
+        if self.conversation_history:
+            history_path = self.config.get("memory", {}).get("history_path", "data/conversation_history.json")
+            os.makedirs(os.path.dirname(history_path), exist_ok=True)
+            with open(history_path, "w", encoding="utf-8") as f:
+                json.dump(self.conversation_history, f, ensure_ascii=False, indent=2)
+            logger.info(f"История взаимодействия сохранена в {history_path}")
+    
+    def process_input(self, user_input: str) -> str:
+        """
+        Обрабатывает запрос пользователя и возвращает ответ агента.
+        
+        Args:
+            user_input: Текст запроса от пользователя.
+            
+        Returns:
+            Ответ агента на запрос пользователя.
+        """
+        if not self.active:
+            logger.warning("Попытка обработать запрос при неактивном агенте")
+            return "Агент не активен. Пожалуйста, запустите агента с помощью метода start()."
+        
+        logger.info(f"Получен запрос: {user_input}")
+        
+        # Добавление запроса в историю
+        self.conversation_history.append({
+            "role": "user",
+            "content": user_input,
+            "timestamp": self._get_current_timestamp()
+        })
+        
+        # Обработка запроса
+        context = self.memory.get_relevant_context(user_input)
+        reasoning = self.reasoner.analyze(user_input, context)
+        
+        # Планирование действий
+        self.current_plan = self.planner.create_plan(user_input, reasoning, context)
+        
+        # Выполнение плана
+        result = self.executor.execute_plan(
+            self.current_plan,
+            self.tool_manager,
+            self.api_connector
+        )
+        
+        # Формирование ответа
+        response = self.reasoner.generate_response(result, user_input, context)
+        
+        # Добавление ответа в историю
+        self.conversation_history.append({
+            "role": "assistant",
+            "content": response,
+            "timestamp": self._get_current_timestamp()
+        })
+        
+        # Обработка обратной связи
+        self.feedback_handler.log_interaction(user_input, response, self.current_plan, result)
+        
+        # Обновление памяти
+        self.memory.add_interaction(user_input, response)
+        
+        logger.info(f"Отправлен ответ длиной {len(response)} символов")
+        return response
+    
+    def _get_current_timestamp(self) -> str:
+        """Возвращает текущую временную метку в формате ISO."""
+        from datetime import datetime
+        return datetime.utcnow().isoformat()
+    
+    def get_capabilities(self) -> List[str]:
+        """
+        Возвращает список возможностей агента.
+        
+        Returns:
+            Список строк с описанием возможностей агента.
+        """
+        tools = self.tool_manager.list_available_tools()
+        apis = self.api_connector.list_connected_apis()
+        
+        capabilities = [
+            "Обработка естественного языка",
+            "Планирование последовательности действий",
+            "Рассуждение и анализ информации",
+            "Долговременная память взаимодействия"
+        ]
+        
+        capabilities.extend([f"Инструмент: {tool}" for tool in tools])
+        capabilities.extend([f"API соединение: {api}" for api in apis])
+        
+        return capabilities
+    
+    def reset(self) -> None:
+        """Сбрасывает состояние агента, очищая историю разговора и текущий план."""
+        logger.info("Сброс состояния агента")
+        self.conversation_history = []
+        self.current_plan = None
+        self.memory.clear()
+
+
+def main():
+    """Точка входа для запуска агента из командной строки."""
+    parser = argparse.ArgumentParser(description="GC-Forged Pylot Agent")
+    parser.add_argument(
+        "--config", 
+        type=str, 
+        default="config/agent_config.json",
+        help="Путь к файлу конфигурации агента"
+    )
+    parser.add_argument(
+        "--interactive", 
+        action="store_true",
+        help="Запустить агента в интерактивном режиме"
+    )
+    
+    args = parser.parse_args()
+    
+    agent = PylotAgent(config_path=args.config)
+    agent.start()
+    
+    try:
+        if args.interactive:
+            print("GC-Forged Pylot Agent запущен. Для выхода введите 'exit' или нажмите Ctrl+C.")
+            while True:
+                user_input = input("\nВы: ")
+                if user_input.lower() in ["exit", "quit"]:
+                    break
+                response = agent.process_input(user_input)
+                print(f"\nАгент: {response}")
+    except KeyboardInterrupt:
+        print("\nПолучен сигнал прерывания. Завершение работы...")
+    finally:
+        agent.stop()
+        print("GC-Forged Pylot Agent остановлен.")
+
+
+if __name__ == "__main__":
+    main()
