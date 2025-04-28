@@ -1,13 +1,18 @@
 # 🚀 GC-Forged-Pylot
 
-> Автономная система кодирования 24/7, основанная на llama.cpp от Георгия Герганова и расширенная возможностями GitHub Copilot.
+> An autonomous 24/7 coding system built on the foundation of llama.cpp by Georgiy Gerganov and enhanced with GitHub Copilot capabilities.
 
-## 🔭 Видение проекта
+## Vision
 
-GC-Forged-Pylot стремится создать непрерывную среду разработки, где ИИ может работать круглосуточно, обеспечивая эволюцию кода даже когда человеческим разработчикам нужно отдохнуть. Объединяя эффективный локальный инференс llama.cpp с расширенными возможностями кодирования, мы строим будущее автономной разработки.
+GC-Forged-Pylot aims to create a continuous development environment where AI can work around the clock, ensuring that code continues to evolve even when human developers need to rest. By combining the efficient local inference of llama.cpp with advanced coding capabilities, we're building the future of autonomous development.
 
-## 🧩 Основные компоненты
+## Core Components
 
-- **GC-Core**: Оптимизированный сервер llama.cpp с улучшениями для интеграции с IDE
-- **Forged-Bridge**: Продвинутый прокси-слой для бесшовной интеграции с расширениями VSCode
-- **
+- **GC-Core**: Optimized llama.cpp server with enhancements for IDE integration
+- **Forged-Bridge**: Advanced proxy layer for seamless integration with VSCode extensions
+- **Pylot-Agent**: Autonomous agent capable of long-running programming tasks
+
+## Getting Started
+
+```bash
+# Coming soon
