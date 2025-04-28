@@ -1,0 +1,90 @@
+{
+    "llm": {
+      "type": "llama_cpp",
+      "default_model": "llama-2-7b",
+      "models": {
+        "llama-2-7b": {
+          "model_path": "models/llama-2-7b-chat.Q4_K_M.gguf",
+          "n_ctx": 4096,
+          "n_gpu_layers": 0,
+          "n_batch": 512,
+          "chat_format": "llama-2",
+          "system_prompt": "You are a helpful programming assistant. You help users understand and write code.",
+          "temperature": 0.7,
+          "max_tokens": 2048
+        },
+        "codellama-7b": {
+          "model_path": "models/codellama-7b-instruct.Q5_K_M.gguf",
+          "n_ctx": 8192,
+          "n_gpu_layers": 0,
+          "n_batch": 512,
+          "chat_format": "llama-2",
+          "system_prompt": "You are a expert programming assistant. You provide accurate, efficient and well-documented code examples.",
+          "temperature": 0.5,
+          "max_tokens": 4096
+        }
+      }
+    },
+    "memory": {
+      "type": "simple",
+      "history_size": 10,
+      "history_path": "data/conversation_history.json"
+    },
+    "planning": {
+      "enabled": true,
+      "max_steps": 5
+    },
+    "reasoning": {
+      "chain_of_thought": true,
+      "verbosity": "medium"
+    },
+    "execution": {
+      "timeout": 30,
+      "max_retries": 2
+    },
+    "api": {
+      "endpoints": {
+        "github": {
+          "url": "https://api.github.com",
+          "auth_required": true,
+          "auth_type": "token"
+        },
+        "stackoverflow": {
+          "url": "https://api.stackexchange.com/2.3",
+          "auth_required": false
+        }
+      }
+    },
+    "tools": {
+      "available_tools": [
+        {
+          "name": "code_analyzer",
+          "description": "Analyzes code for errors and suggests improvements",
+          "path": "tools/code_analyzer.py"
+        },
+        {
+          "name": "git_helper",
+          "description": "Helps with Git operations",
+          "path": "tools/git_helper.py"
+        },
+        {
+          "name": "web_search",
+          "description": "Searches the web for programming information",
+          "path": "tools/web_search.py"
+        }
+      ]
+    },
+    "feedback": {
+      "log_path": "logs/feedback.log",
+      "save_interactions": true
+    },
+    "ide_integration": {
+      "enabled": true,
+      "supported_editors": ["vscode", "sublime", "intellij"],
+      "extensions": {
+        "vscode": {
+          "command_prefix": "gc-pylot"
+        }
+      }
+    }
+  }
