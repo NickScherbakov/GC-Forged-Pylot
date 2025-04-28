@@ -1,140 +1,184 @@
-
-## 2️⃣ src/core/server.py
-
-```python
-"""/core/config.py
-
-```python name=
+"""
 Core server implementation that interfaces with llama.cpp.
 """
 import os
 import sys
-import loggingsrc/core/config.py
-"""
-Configuration management for GC-Core.
-"""
-import os
-import json
+import logging
+import threading
+import time
 from pathlib import Path
-from dataclasses import data
-from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, 
+                   format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 class LlamaServer:
-    class
-from typing import Dict, Any, Optional, List
-
-@dataclass
-class LlamaConfig:
-    """Configuration for the Llama"""
+    """
     A wrapper around llama.cpp that provides enhanced functionality
     for IDE integration and continuous operation.
     """
     
-    def __init__(self, model_path=None, config=Server."""
-    model_path: str
-    context_size: int = 4096
-    threads: int = 4
-    batch_size: intNone):
+    def __init__(self, model_path=None, config=None):
         """
         Initialize the LlamaServer with model path and configuration.
         
         Args:
-            model_path: Path to the  = 512
-    temperature: float = 0.7
-    top_p: float = 0.95
-    top_k: int = 40
-    repeat_penalty: float = 1.1
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'LlamaConfig':
-        """Create a LlamaConfig from a dictionary."""
-        return cls(**{k: v for k, v in data.items() if k in cls.__dataclass_fields__})
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the configuration to a dictionary."""
-        return {
-            "model_path": self.model_path,
-            "context_sizeGGUF model file
+            model_path: Path to the GGUF model file
             config: Configuration dictionary or object
         """
         self.model_path = model_path or os.environ.get("GC_MODEL_PATH")
         self.config = config
+        self.running = False
+        self.server_thread = None
+        self._llama_instance = None
         self._validate_setup()
         logger.info(f"LlamaServer initialized with model: {self.model_path}")
         
     def _validate_setup(self):
-        """Validate that the model exists and other requirements are met."""
+        """Ensure the server is properly configured."""
         if not self.model_path:
-            logger.error("No model path provided via argument or GC_MODEL_PATH environment variable")
-            raise ValueError("Model path must be specified")
-            
-        model_file = Path(self.model_path": self.context_size,
-            "threads": self.threads,
-            "batch_size": self)
-        if not model_file.exists():
+            logger.error("No model path provided")
+            raise ValueError("Model path must be provided via argument or GC_MODEL_PATH env variable")
+        
+        if not Path(self.model_path).exists():
             logger.error(f"Model file not found: {self.model_path}")
             raise FileNotFoundError(f"Model file not found: {self.model_path}")
-    
-    def start.batch_size,
-            "temperature": self.temperature,
-            "top_p(self):
-        """Start the llama.cpp server": self.top_p,
-            "top_k": self.top_k, process."""
-        logger.info("Starting LlamaServer...")
-        # TODO
-            "repeat_penalty": self.repeat_penalty,
-        }
-
-def load_config(config_path: Optional[str] =: Implement actual llama.cpp process start
+            
+    def _load_model(self):
+        """Load the language model using llama-cpp-python."""
+        try:
+            # We'll use a dynamic import to avoid dependency issues if not installed
+            from llama_cpp import Llama
+            
+            # Configure the model based on the hardware capabilities
+            # Optimize for Intel i9-11900KF and AMD Radeon RX 580
+            
+            # For AMD GPU with ROCm backend
+            gpu_layers = 0
+            if self.config and self.config.get('use_gpu', True):
+                gpu_layers = -1  # Use all layers on GPU if possible
+                os.environ["GGML_OPENCL_PLATFORM"] = "AMD"
+                os.environ["GGML_OPENCL_DEVICE"] = "0"  # Primary GPU
+            
+            # Configure number of threads based on CPU (i9-11900KF has 8 cores/16 threads)
+            n_threads = (self.config and self.config.get('threads')) or 8
+            
+            # Initialize the model
+            self._llama_instance = Llama(
+                model_path=self.model_path,
+                n_ctx=self.config.get('context_size', 4096),
+                n_threads=n_threads,
+                n_gpu_layers=gpu_layers,
+                seed=self.config.get('seed', 42),
+                verbose=self.config.get('verbose', False)
+            )
+            
+            logger.info(f"Model loaded successfully with {n_threads} threads and GPU layers: {gpu_layers}")
+            return True
+        except ImportError:
+            logger.error("llama-cpp-python package not found. Please install with: pip install llama-cpp-python")
+            return False
+        except Exception as e:
+            logger.error(f"Failed to load model: {e}")
+            return False
         
+    def start(self, host="0.0.0.0", port=8080):
+        """Start the LlamaServer on the specified host and port."""
+        if self.running:
+            logger.warning("Server is already running")
+            return False
+            
+        # Load the model
+        if not self._load_model():
+            return False
+            
+        # Start the server in a separate thread
+        self.running = True
+        self.server_thread = threading.Thread(
+            target=self._server_loop, 
+            args=(host, port), 
+            daemon=True
+        )
+        self.server_thread.start()
+        
+        logger.info(f"Starting LlamaServer on {host}:{port}")
+        logger.info("Server running. Press Ctrl+C to stop.")
+        return True
+        
+    def _server_loop(self, host, port):
+        """Main server loop."""
+        # TODO: Implement actual server logic here
+        # This would include setting up API endpoints, WebSocket, etc.
+        while self.running:
+            time.sleep(1)  # Placeholder for actual server logic
+            
     def stop(self):
-        """ None) -> LlamaConfig:
-    """
-    Load configuration from the specified path or default locations.
-    
-    Args:
-        config_path: Path to the configurationStop the llama.cpp server process."""
-        logger.info("Stopping LlamaServer...")
-         file
+        """Stop the LlamaServer."""
+        if not self.running:
+            logger.warning("Server is not running")
+            return
+            
+        logger.info("Stopping LlamaServer")
+        self.running = False
         
-    Returns:
-        LlamaConfig object
-    """
-    # Default config paths to check
-    default_paths = [
-        Path("# TODO: Implement actual llama.cpp process stop
+        if self.server_thread:
+            self.server_thread.join(timeout=5.0)
+            
+        # Clean up llama instance
+        self._llama_instance = None
+        logger.info("Server stopped")
         
-    def query(self, promptconfig.json"),
-        Path., params=None):
+    def generate(self, prompt, max_tokens=256, temperature=0.7, top_p=0.95, stream=False):
         """
-        Send a query to the llama.cpp server.
+        Generate a completion for the given prompt.
         
         Args:
-            prompt: The text prompt to send
-            params: Additional parameters for the query
+            prompt: Input text prompt
+            max_tokens: Maximum tokens to generate
+            temperature: Sampling temperature
+            top_p: Nucleus sampling parameter
+            stream: Whether to stream the results
             
-        Returns:home() / ".gc-forged-pyl
-            The model's response as a string
+        Returns:
+            Generated text or generator if streaming
         """
-        logger.info(f"Sending query, length: {len(prompt)} chars")
-        #ot" / "config.json",
-        Path("/etc/gc-forged-pylot/config.json"),
-    ] TODO: Implement actual query to llama.cpp
-        return f"Response to: {prompt[:30]}..."
-
-def main():
-    """Main entry point for command-line usage."""
-    server = Llama
+        if not self._llama_instance:
+            logger.error("Model not loaded, call start() first")
+            return None
+            
+        logger.debug(f"Generating with prompt: {prompt[:50]}...")
+        
+        try:
+            if stream:
+                return self._generate_stream(prompt, max_tokens, temperature, top_p)
+            else:
+                return self._generate_sync(prompt, max_tokens, temperature, top_p)
+        except Exception as e:
+            logger.error(f"Generation error: {e}")
+            return None
     
-    # Add user-specified path if provided
-    paths_to_check = [Path(config_path)] if config_path else default_paths
+    def _generate_sync(self, prompt, max_tokens, temperature, top_p):
+        """Synchronous generation."""
+        result = self._llama_instance.create_completion(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=40,
+            repeat_penalty=1.1
+        )
+        return result["choices"][0]["text"]
     
-    # Check for existing config file
-    config_file = NoneServer()
-    server.start()
-    
-if __name__ == "__main__":
-    main()
+    def _generate_stream(self, prompt, max_tokens, temperature, top_p):
+        """Streaming generation."""
+        for token in self._llama_instance.create_completion(
+            prompt=prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            top_p=top_p,
+            top_k=40,
+            repeat_penalty=1.1,
+            stream=True
+        ):
+            yield token["choices"][0]["text"]
