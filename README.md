@@ -1,18 +1,40 @@
-# 🚀 GC-Forged-Pylot
+GC-Forged-Pylot
+==============================================================
 
-> An autonomous 24/7 coding system built on the foundation of llama.cpp by Georgiy Gerganov and enhanced with GitHub Copilot capabilities.
+Автономная система программирования 24/7
 
-## Vision
+Описание
+--------
+GC-Forged-Pylot - это локальная система программирования на базе llama.cpp от Георгия Герганова, 
+адаптированная для работы на персональном оборудовании. Система предоставляет функциональность, 
+подобную GitHub Copilot, но работающую полностью локально для сохранения конфиденциальности кода.
 
-GC-Forged-Pylot aims to create a continuous development environment where AI can work around the clock, ensuring that code continues to evolve even when human developers need to rest. By combining the efficient local inference of llama.cpp with advanced coding capabilities, we're building the future of autonomous development.
+Основные компоненты
+------------------
+1. GC-Core: Взаимодействие с llama.cpp для запуска LLM моделей
+2. Forged-Bridge: Интеграция с редакторами кода
+3. Pylot-Agent: Автономный агент для выполнения долгосрочных задач
 
-## Core Components
+Системные требования
+-------------------
+- Python 3.8+
+- 8+ ГБ оперативной памяти
+- GPU с поддержкой CUDA или ROCm (опционально)
+- Совместимая модель в формате GGUF
 
-- **GC-Core**: Optimized llama.cpp server with enhancements for IDE integration
-- **Forged-Bridge**: Advanced proxy layer for seamless integration with VSCode extensions
-- **Pylot-Agent**: Autonomous agent capable of long-running programming tasks
+Установка
+--------
+1. Клонировать этот репозиторий
+2. Установить зависимости: pip install -r requirements.txt 
+3. Скачать GGUF модель в директорию models/
+4. Запустить: python main.py --model models/your_model.gguf
 
-## Getting Started
+Текущее состояние
+---------------
+Проект находится в разработке. Базовая функциональность для запуска
+локального LLM сервера реализована, работа над расширенными возможностями
+продолжается.
 
-```bash
-# Coming soon
+Лицензия
+-------
+MIT
