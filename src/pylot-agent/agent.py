@@ -30,6 +30,8 @@ from core.memory import Memory
 from core.planner import Planner
 from core.reasoning import Reasoner
 from core.llm_interface import LLMInterface
+from core.llm_llama_cpp import LLamaLLM
+from core.llm_external import ExternalLLMAdapter
 
 # Импорт компонентов моста
 from bridge.api_connector import APIConnector
@@ -67,8 +69,18 @@ class PylotAgent:
         logger.info("Инициализация агента Pylot...")
         self.config = self._load_config(config_path)
         
+        # Инициализация LLM в зависимости от типа
+        llm_config = self.config.get("llm", {})
+        llm_type = llm_config.get("type", "llama_cpp")
+        
+        if llm_type == "external":
+            logger.info("Инициализация внешнего LLM API...")
+            self.llm = ExternalLLMAdapter(llm_config)
+        else:
+            logger.info("Инициализация локального LLM (llama.cpp)...")
+            self.llm = LLamaLLM(llm_config)
+        
         # Инициализация компонентов ядра
-        self.llm = LLMInterface(self.config.get("llm", {}))
         self.memory = Memory(self.config.get("memory", {}))
         self.reasoner = Reasoner(self.llm, self.config.get("reasoning", {}))
         self.planner = Planner(self.llm, self.reasoner, self.config.get("planning", {}))
@@ -126,6 +138,10 @@ class PylotAgent:
         self.active = False
         self._save_conversation_history()
         self._disconnect_apis()
+        
+        # Освобождаем ресурсы LLM
+        if hasattr(self.llm, 'shutdown'):
+            self.llm.shutdown()
     
     def _load_tools(self) -> None:
         """Загружает доступные инструменты для агента."""
@@ -239,6 +255,14 @@ class PylotAgent:
             "Долговременная память взаимодействия"
         ]
         
+        # Добавляем информацию о типе LLM
+        llm_type = self.config.get("llm", {}).get("type", "llama_cpp")
+        if llm_type == "external":
+            api_url = self.config.get("llm", {}).get("external_api", {}).get("url", "")
+            capabilities.append(f"Использование внешнего LLM API: {api_url}")
+        else:
+            capabilities.append("Использование локальной модели llama.cpp")
+        
         capabilities.extend([f"Инструмент: {tool}" for tool in tools])
         capabilities.extend([f"API соединение: {api}" for api in apis])
         
@@ -266,15 +290,35 @@ def main():
         action="store_true",
         help="Запустить агента в интерактивном режиме"
     )
+    parser.add_argument(
+        "--use-external", 
+        action="store_true",
+        help="Использовать внешний LLM API вместо локального"
+    )
     
     args = parser.parse_args()
     
-    agent = PylotAgent(config_path=args.config)
+    # Загружаем конфигурацию и модифицируем при необходимости
+    with open(args.config, "r", encoding="utf-8") as f:
+        config = json.load(f)
+        
+    if args.use_external:
+        config["llm"]["type"] = "external"
+        logger.info("Используем внешний LLM API")
+    
+    # Временно сохраняем модифицированную конфигурацию
+    temp_config_path = "config/temp_agent_config.json"
+    with open(temp_config_path, "w", encoding="utf-8") as f:
+        json.dump(config, f, ensure_ascii=False, indent=2)
+    
+    # Создаем и запускаем агента с модифицированной конфигурацией
+    agent = PylotAgent(config_path=temp_config_path)
     agent.start()
     
     try:
         if args.interactive:
             print("GC-Forged Pylot Agent запущен. Для выхода введите 'exit' или нажмите Ctrl+C.")
+            print(f"Используется {'внешний API' if config['llm']['type'] == 'external' else 'локальная модель'}")
             while True:
                 user_input = input("\nВы: ")
                 if user_input.lower() in ["exit", "quit"]:
@@ -285,6 +329,9 @@ def main():
         print("\nПолучен сигнал прерывания. Завершение работы...")
     finally:
         agent.stop()
+        # Удаляем временный файл конфигурации
+        if os.path.exists(temp_config_path):
+            os.remove(temp_config_path)
         print("GC-Forged Pylot Agent остановлен.")
 
 

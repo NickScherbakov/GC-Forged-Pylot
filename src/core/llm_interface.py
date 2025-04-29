@@ -2,48 +2,47 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Интерфейс для llama.cpp
-======================================
+GC-Forged Pylot - Интерфейс для языковых моделей
+===============================================
 
-Модуль для взаимодействия с языковыми моделями через llama.cpp.
+Базовый интерфейс для взаимодействия с языковыми моделями.
 
 Автор: GC-Forged Pylot Team
 Дата: 2025
 Лицензия: MIT
 """
 
-import os
 import logging
 from typing import Dict, List, Any, Optional, Union
-
-from .llm_interface import LLMInterface, LLMResponse
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
 
-class LLamaLLM(LLMInterface):
+@dataclass
+class LLMResponse:
+    """Результат выполнения запроса к языковой модели."""
+    text: str
+    metadata: Dict[str, Any] = None
+
+
+class LLMInterface:
     """
-    Класс для взаимодействия с языковыми моделями через llama.cpp.
+    Базовый интерфейс для языковых моделей.
     
-    Реализует интерфейс LLMInterface для работы с локальными моделями
-    через Python-биндинги llama.cpp.
+    Этот класс определяет общий интерфейс для всех языковых моделей,
+    используемых в системе GC-Forged Pylot.
     """
     
     def __init__(self, config: Dict[str, Any] = None):
         """
-        Инициализирует интерфейс LLamaLLM.
+        Инициализирует интерфейс LLM.
         
         Args:
             config: Конфигурация для LLM
         """
-        super().__init__(config or {})
-        self.model = None
-        self.default_model_name = self.config.get("default_model", "")
-        self.models_config = self.config.get("models", {})
-        
-        # Заглушка для совместимости с проектом
-        logger.warning("LLamaLLM - заглушка инициализирована (llama.cpp не установлен)")
-        
+        self.config = config or {}
+    
     def generate(self, prompt: str, **kwargs) -> LLMResponse:
         """
         Генерирует ответ на основе промпта.
@@ -55,15 +54,7 @@ class LLamaLLM(LLMInterface):
         Returns:
             LLMResponse: Объект с ответом и метаданными
         """
-        logger.warning("LLamaLLM.generate вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return LLMResponse(
-            text="[Эта функция недоступна, так как llama.cpp не установлен]",
-            metadata={
-                "model": "dummy",
-                "elapsed_time": 0.0,
-                "dummy": True
-            }
-        )
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")
     
     def chat(self, messages: List[Dict[str, str]], **kwargs) -> LLMResponse:
         """
@@ -76,15 +67,7 @@ class LLamaLLM(LLMInterface):
         Returns:
             LLMResponse: Объект с ответом и метаданными
         """
-        logger.warning("LLamaLLM.chat вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return LLMResponse(
-            text="[Эта функция недоступна, так как llama.cpp не установлен]",
-            metadata={
-                "model": "dummy",
-                "elapsed_time": 0.0,
-                "dummy": True
-            }
-        )
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")
     
     def get_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
@@ -96,8 +79,7 @@ class LLamaLLM(LLMInterface):
         Returns:
             List[List[float]]: Список векторов эмбеддингов
         """
-        logger.warning("LLamaLLM.get_embeddings вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return [[0.0] * 768] * len(texts)
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")
     
     def tokenize(self, text: str) -> List[int]:
         """
@@ -109,8 +91,7 @@ class LLamaLLM(LLMInterface):
         Returns:
             List[int]: Список идентификаторов токенов
         """
-        logger.warning("LLamaLLM.tokenize вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return list(range(len(text) // 4 + 1))
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")
     
     def detokenize(self, tokens: List[int]) -> str:
         """
@@ -122,8 +103,7 @@ class LLamaLLM(LLMInterface):
         Returns:
             str: Декодированный текст
         """
-        logger.warning("LLamaLLM.detokenize вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return ""
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")
     
     def count_tokens(self, text: str) -> int:
         """
@@ -135,8 +115,7 @@ class LLamaLLM(LLMInterface):
         Returns:
             int: Количество токенов
         """
-        logger.warning("LLamaLLM.count_tokens вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return len(text) // 4 + 1
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")
     
     def get_max_context_length(self) -> int:
         """
@@ -145,10 +124,4 @@ class LLamaLLM(LLMInterface):
         Returns:
             int: Максимальная длина контекста в токенах
         """
-        logger.warning("LLamaLLM.get_max_context_length вызван, но llama.cpp не установлен. Возвращаем заглушку.")
-        return 4096
-    
-    def shutdown(self) -> None:
-        """Освобождает ресурсы модели."""
-        logger.info("LLamaLLM.shutdown вызван")
-        self.model = None
+        raise NotImplementedError("Метод должен быть реализован в дочернем классе")

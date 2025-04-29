@@ -1,7 +1,14 @@
 {
     "llm": {
-      "type": "llama_cpp",
-      "default_model": "llama-2-7b",
+      "type": "external",
+      "default_model": "gpt-3.5-turbo",
+      "external_api": {
+        "url": "http://192.168.2.74:3131/v1",
+        "api_key": "",
+        "timeout": 60,
+        "embedding_model": "text-embedding-ada-002",
+        "max_context_length": 4096
+      },
       "models": {
         "llama-2-7b": {
           "model_path": "models/llama-2-7b-chat.Q4_K_M.gguf",
@@ -51,6 +58,10 @@
         },
         "stackoverflow": {
           "url": "https://api.stackexchange.com/2.3",
+          "auth_required": false
+        },
+        "external_llm": {
+          "url": "http://192.168.2.74:3131/v1",
           "auth_required": false
         }
       }
