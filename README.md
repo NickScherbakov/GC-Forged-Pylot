@@ -108,3 +108,12 @@ MIT
 1. Модуль интеграции с llama.cpp
 2. Компоненты для работы с IDE
 3. Специализированные инструменты для программирования
+
+## Поддержите проект
+
+Ваш вклад может помочь в развитии GC-Forged-Pylot! Если вам нравится проект и вы хотите поддержать его развитие, рассмотрите возможность спонсорства:
+
+- Подробнее о проекте и инвестиционных возможностях: [To_Investors.md](To_Investors.md)
+- [GitHub Sponsors](https://github.com/sponsors/NickScherbakov) *(если доступно)*
+- [Patreon](https://www.patreon.com/ваша_страница)
+- [Open Collective](https://opencollective.com/ваша_страница)
