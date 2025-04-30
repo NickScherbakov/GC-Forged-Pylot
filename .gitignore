@@ -24,6 +24,7 @@ wheels/
 venv/
 env/
 ENV/
+.env
 
 # IDE
 .idea/
@@ -42,6 +43,7 @@ logs/
 # Data
 data/
 *.db
+*.gguf
 
 # Temp files
 .temp/

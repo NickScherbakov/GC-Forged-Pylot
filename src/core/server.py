@@ -25,6 +25,9 @@ except ImportError:
 from .llm_llama_cpp import LLamaLLM, LLAMA_CPP_AVAILABLE
 from .llm_interface import LLMResponse
 
+# Корректный импорт класса из llm_external.py
+from .llm_external import ExternalLLMAdapter
+
 logging.basicConfig(level=logging.INFO, 
                    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
@@ -360,51 +363,6 @@ class LlamaServer:
                     logger.error(f"Error generating completion: {e}")
                     raise HTTPException(status_code=500, detail=str(e))
                 
-            async def _streaming_completion(self, request: CompletionRequest):
-                """Stream completions."""
-                try:
-                    generator = self._llm_instance.generate(
-                        request.prompt,
-                        max_tokens=request.max_tokens,
-                        temperature=request.temperature,
-                        top_p=request.top_p,
-                        top_k=request.top_k,
-                        repeat_penalty=request.repeat_penalty,
-                        stop=request.stop,
-                        stream=True
-                    )
-                    
-                    completion_id = f"cmpl-{uuid.uuid4()}"
-                    created = int(time.time())
-                    
-                    for chunk in generator:
-                        data = {
-                            "id": completion_id,
-                            "object": "text_completion",
-                            "created": created,
-                            "model": os.path.basename(self.model_path),
-                            "choices": [
-                                {
-                                    "text": chunk.text,
-                                    "index": 0,
-                                    "logprobs": None,
-                                    "finish_reason": chunk.metadata.get("finish_reason", None)
-                                }
-                            ]
-                        }
-                        
-                        yield f"data: {json.dumps(data)}\n\n"
-                        
-                        if chunk.metadata.get("finish_reason"):
-                            break
-                            
-                    yield "data: [DONE]\n\n"
-                    
-                except Exception as e:
-                    logger.error(f"Error in streaming completion: {e}")
-                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
-                    yield "data: [DONE]\n\n"
-                    
             @self.app.post("/v1/chat/completions")
             async def create_chat_completion(request: ChatRequest):
                 """Create a chat completion."""
@@ -482,53 +440,6 @@ class LlamaServer:
                     logger.error(f"Error generating chat completion: {e}")
                     raise HTTPException(status_code=500, detail=str(e))
                 
-            async def _streaming_chat(self, request: ChatRequest, messages: List[Dict[str, str]]):
-                """Stream chat completions."""
-                try:
-                    generator = self._llm_instance.chat(
-                        messages,
-                        max_tokens=request.max_tokens,
-                        temperature=request.temperature,
-                        top_p=request.top_p,
-                        top_k=request.top_k,
-                        repeat_penalty=request.repeat_penalty,
-                        stop=request.stop,
-                        stream=True
-                    )
-                    
-                    completion_id = f"chatcmpl-{uuid.uuid4()}"
-                    created = int(time.time())
-                    
-                    for i, chunk in enumerate(generator):
-                        data = {
-                            "id": completion_id,
-                            "object": "chat.completion.chunk",
-                            "created": created,
-                            "model": os.path.basename(self.model_path),
-                            "choices": [
-                                {
-                                    "index": 0,
-                                    "delta": {
-                                        "role": "assistant" if i == 0 else "",
-                                        "content": chunk.text
-                                    },
-                                    "finish_reason": chunk.metadata.get("finish_reason", None)
-                                }
-                            ]
-                        }
-                        
-                        yield f"data: {json.dumps(data)}\n\n"
-                        
-                        if chunk.metadata.get("finish_reason"):
-                            break
-                            
-                    yield "data: [DONE]\n\n"
-                    
-                except Exception as e:
-                    logger.error(f"Error in streaming chat: {e}")
-                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
-                    yield "data: [DONE]\n\n"
-                    
             @self.app.websocket("/ws/completions")
             async def websocket_endpoint(websocket: WebSocket):
                 """WebSocket endpoint for streaming completions."""
@@ -807,18 +718,110 @@ class LlamaServer:
         except Exception as e:
             logger.error(f"Generation error: {e}")
             return None
+
+    async def _streaming_completion(self, request):
+        """Stream completions."""
+        try:
+            generator = self._llm_instance.generate(
+                request.prompt,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+                top_p=request.top_p,
+                top_k=request.top_k,
+                repeat_penalty=request.repeat_penalty,
+                stop=request.stop,
+                stream=True
+            )
             
+            completion_id = f"cmpl-{uuid.uuid4()}"
+            created = int(time.time())
+            
+            for chunk in generator:
+                data = {
+                    "id": completion_id,
+                    "object": "text_completion",
+                    "created": created,
+                    "model": os.path.basename(self.model_path),
+                    "choices": [
+                        {
+                            "text": chunk.text,
+                            "index": 0,
+                            "logprobs": None,
+                            "finish_reason": chunk.metadata.get("finish_reason", None)
+                        }
+                    ]
+                }
+                
+                yield f"data: {json.dumps(data)}\n\n"
+                
+                if chunk.metadata.get("finish_reason"):
+                    break
+                    
+            yield "data: [DONE]\n\n"
+            
+        except Exception as e:
+            logger.error(f"Error in streaming completion: {e}")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            yield "data: [DONE]\n\n"
+            
+    async def _streaming_chat(self, request, messages: List[Dict[str, str]]):
+        """Stream chat completions."""
+        try:
+            generator = self._llm_instance.chat(
+                messages,
+                max_tokens=request.max_tokens,
+                temperature=request.temperature,
+                top_p=request.top_p,
+                top_k=request.top_k,
+                repeat_penalty=request.repeat_penalty,
+                stop=request.stop,
+                stream=True
+            )
+            
+            completion_id = f"chatcmpl-{uuid.uuid4()}"
+            created = int(time.time())
+            
+            for i, chunk in enumerate(generator):
+                data = {
+                    "id": completion_id,
+                    "object": "chat.completion.chunk",
+                    "created": created,
+                    "model": os.path.basename(self.model_path),
+                    "choices": [
+                        {
+                            "index": 0,
+                            "delta": {
+                                "role": "assistant" if i == 0 else "",
+                                "content": chunk.text
+                            },
+                            "finish_reason": chunk.metadata.get("finish_reason", None)
+                        }
+                    ]
+                }
+                
+                yield f"data: {json.dumps(data)}\n\n"
+                
+                if chunk.metadata.get("finish_reason"):
+                    break
+                    
+            yield "data: [DONE]\n\n"
+            
+        except Exception as e:
+            logger.error(f"Error in streaming chat: {e}")
+            yield f"data: {json.dumps({'error': str(e)})}\n\n"
+            yield "data: [DONE]\n\n"
+
 from flask import Flask, request, jsonify
-from .llm_llama_cpp import LlamaCppModel
-from .llm_external import ExternalLLM
+from .llm_llama_cpp import LLamaLLM
+from .llm_external import ExternalLLMAdapter  # Использовать правильный класс
 
 app = Flask(__name__)
 
 llama_model_path = "dummy_model_check.gguf"
 external_api_url = "https://api.example.com/generate"
 
-llama_model = LlamaCppModel(llama_model_path)
-external_llm = ExternalLLM(external_api_url)
+llama_model = LLamaLLM({"model_path": llama_model_path})
+external_llm = ExternalLLMAdapter({"external_api": {"url": external_api_url}})  # Правильная инициализация
 
 @app.route('/generate', methods=['POST'])
 def generate_text():
@@ -829,8 +832,8 @@ def generate_text():
         return jsonify({"error": "Prompt is required"}), 400
     
     try:
-        text = llama_model.generate(prompt)
-        return jsonify({"text": text})
+        response = llama_model.generate(prompt)
+        return jsonify({"text": response.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -843,8 +846,8 @@ def external_generate_text():
         return jsonify({"error": "Prompt is required"}), 400
     
     try:
-        text = external_llm.generate_text(prompt)
-        return jsonify({"text": text})
+        response = external_llm.generate(prompt)  # Вызываем правильный метод
+        return jsonify({"text": response.text})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

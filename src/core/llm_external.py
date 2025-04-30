@@ -25,7 +25,8 @@ import threading
 # Добавляем родительский каталог в sys.path для импорта
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from bridge.proxy import ExternalLLMProxy
+# Изменяем импорт с более конкретным указанием пути
+from ..bridge.proxy import ExternalLLMProxy
 from .llm_interface import LLMInterface, LLMResponse
 
 # Настройка логирования

@@ -1,109 +1,111 @@
 # GC-Forged-Pylot
 
-## 🇷🇺 Описание
-GC-Forged-Pylot — это автономный помощник для программирования с искусственным интеллектом, который работает локально, обеспечивая максимальную конфиденциальность данных пользователя. Проект построен на базе **llama.cpp** и предоставляет мощные инструменты для ускорения разработки.
+**GC-Forged-Pylot** is an autonomous 24/7 coding system built on [llama.cpp](https://github.com/ggerganov/llama.cpp) with integrated GitHub Copilot functionality. It runs a local LLM server that provides an OpenAI-compatible API, supports chat and text completion endpoints, and allows for real-time streaming via WebSockets.
 
-### Ключевые особенности:
-- **Конфиденциальность**: Полностью локальное выполнение, исключающее утечку данных.
-- **Модульная архитектура**:
-  - **GC-Core**: Взаимодействие с языковыми моделями.
-  - **Forged-Bridge**: Интеграция с редакторами кода.
-  - **Pylot-Agent**: Автономный агент для выполнения задач.
-- **Инструменты анализа кода**: Семантический поиск, рефакторинг, генерация тестов и документации.
+## Features
 
----
+- **Local LLM Server:** Launch a local server using FastAPI that wraps a llama.cpp model.
+- **API Endpoints:** Offers endpoints for status, completions, chat completions, and configuration.
+- **Streaming Support:** Provides streaming responses for real-time data through HTTP and WebSocket protocols.
+- **Caching:** Uses an in-memory cache to speed up repeated requests.
+- **Environment Configurable:** Loads configuration from a JSON file and environment variables.
 
-## 🇬🇧 Description
-GC-Forged-Pylot is an autonomous AI-powered coding assistant designed to run locally, ensuring maximum confidentiality of user data. Built on **llama.cpp**, it provides powerful tools to accelerate development.
+## Project Structure
 
-### Key Features:
-- **Confidentiality**: Fully local execution eliminates data leakage.
-- **Modular Architecture**:
-  - **GC-Core**: Interaction with language models.
-  - **Forged-Bridge**: Integration with code editors.
-  - **Pylot-Agent**: Autonomous agent for task execution.
-- **Code Analysis Tools**: Semantic search, refactoring, test generation, and documentation creation.
+```
+GC-Forged-Pylot/
+├── main.py                # Entry point for the LLM server ([main.py](e:\GC-Forged-Pylot\main.py))
+├── setup.py               # Package setup script and dependencies
+├── src/
+│   └── core/
+│       ├── server.py      # Server implementation and API endpoints ([src/core/server.py](e:\GC-Forged-Pylot\src\core\server.py))
+│       ├── ...            # Other modules (e.g. configuration, LLM interface)
+└── tests/
+    └── core/
+         └── test_server_api.py  # API tests for the server
+```
 
----
+## Installation
 
-## 🇷🇺 Установка
-### Предварительные требования:
-- Python версии 3.8 или выше.
-- Минимум 8 ГБ ОЗУ (рекомендуется 16 ГБ).
-- GPU (опционально): NVIDIA CUDA или AMD ROCm.
+1. **Clone the repository:**
 
-### Шаги:
-1. Клонируйте репозиторий:
    ```bash
-   git clone https://github.com/NickScherbakov/GC-Forged-Pylot.git
-   cd GC-Forged-Pylot
-   ```
-2. Установите зависимости:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Скачайте модель **GGUF** и поместите её в папку `models/`.
-4. Запустите основной скрипт:
-   ```bash
-   python main.py --model models/your_model.gguf
+   git clone https://github.com/yourusername/gc-forged-pylot.git
+   cd gc-forged-pylot
    ```
 
----
+2. **Create and activate a virtual environment:**
 
-## 🇬🇧 Installation
-### Prerequisites:
-- Python 3.8 or higher.
-- At least 8 GB of RAM (16 GB recommended).
-- GPU (optional): NVIDIA CUDA or AMD ROCm.
-
-### Steps:
-1. Clone the repository:
    ```bash
-   git clone https://github.com/NickScherbakov/GC-Forged-Pylot.git
-   cd GC-Forged-Pylot
-   ```
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Download the **GGUF** model and place it in the `models/` folder.
-4. Run the main script:
-   ```bash
-   python main.py --model models/your_model.gguf
+   python -m venv venv
+   venv\Scripts\activate
    ```
 
----
+3. **Install dependencies:**
 
-## 🇷🇺 Для участников
-### Как внести вклад:
-1. Ознакомьтесь с [документацией](./docs/README.ru.md).
-2. Создайте fork репозитория и предложите изменения через pull request.
-3. Открывайте issues для обсуждения новых функций и исправления ошибок.
+   ```bash
+   pip install -r requirements.txt  # or use setup.py by running: pip install -e .
+   ```
 
----
+4. **Set up environment variables:**
 
-## 🇬🇧 For Contributors
-### How to contribute:
-1. Review the [documentation](./docs/README.md).
-2. Fork the repository and propose changes via a pull request.
-3. Open issues to discuss new features and fix bugs.
+   Create a `.env` file in the project root with required environment variables (e.g. `GC_MODEL_PATH`).
 
----
+## Running the Server
 
-## 🇷🇺 Для инвесторов и спонсоров
-GC-Forged-Pylot предоставляет мощные возможности локального искусственного интеллекта, сохраняя конфиденциальность данных. Поддержите проект, чтобы ускорить разработку новых функций и улучшений.
+Run the server by executing the entry point:
 
----
+```bash
+python main.py --config config.json --host 127.0.0.1 --port 8000 --reload
+```
 
-## 🇬🇧 For Investors and Sponsors
-GC-Forged-Pylot provides powerful local AI capabilities while ensuring data privacy. Support the project to accelerate the development of new features and improvements.
+The server uses [uvicorn](https://www.uvicorn.org/) to serve the FastAPI application. You should see logs indicating the model is being loaded and the server is running at the specified host and port.
 
----
+## API Endpoints
 
-## 🇷🇺 Лицензия
-Этот проект лицензирован под лицензией MIT.
+The server provides several endpoints:
 
----
+- `GET /v1/status`  
+  Returns server status, including uptime, model info, active connections, and cache statistics.
 
-## 🇬🇧 License
-This project is licensed under the MIT License.
+- `GET /v1/models`  
+  Lists available models.
+
+- `POST /v1/completions`  
+  Generates text completions for the given prompt. Supports optional streaming if requested.
+
+- `POST /v1/chat/completions`  
+  Processes chat completions based on an array of messages.
+
+- **WebSocket Endpoint:**  
+  `ws://<host>:<port>/ws/completions` for streaming completions and chat in real time.
+
+- `GET /v1/config` and `POST /v1/config`  
+  Retrieve and update the current server configuration.
+
+For more details on request payloads and responses, check the API models defined in [server.py](e:\GC-Forged-Pylot\src\core\server.py).
+
+## Development & Testing
+
+- **Run Tests:**  
+  Use your preferred test runner (e.g. pytest) to run tests located in the `tests/` folder.
+
+  ```bash
+  pytest
+  ```
+
+- **Auto-reload:**  
+  Use the `--reload` flag when starting the server for automatic code reloading during development.
+
+## Contributing
+
+Contributions are welcome. Please submit pull requests or open issues to help improve the project.
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+## Acknowledgments
+
+- Inspired by [llama.cpp](https://github.com/ggerganov/llama.cpp) and GitHub Copilot.
+- Built by the GC-Forged-Pylot Team.

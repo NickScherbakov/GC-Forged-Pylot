@@ -1,0 +1,18 @@
+{
+  "server": {
+    "host": "localhost",
+    "port": 3131,
+    "verbose": true
+  },
+  "model": {
+    "path": "e:/GC-Forged-Pylot/models/tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
+    "n_ctx": 2048,
+    "n_gpu_layers": 0
+  },
+  "cache": {
+    "enabled": true,
+    "size": 100,
+    "ttl": 3600
+  },
+  "api_keys": []
+}

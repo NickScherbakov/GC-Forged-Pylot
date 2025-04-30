@@ -53,91 +53,6 @@ if project_root not in sys.path:
     sys.path.insert(0, project_root)
     print(f"[Fixture Setup] Added project root to sys.path: {project_root}")
 
-# --- Model Search and Download Functions ---
-
-def find_lightweight_models():
-    """Find lightweight GGUF models suitable for testing."""
-    print("[Model Search] Looking for lightweight compatible models...")
-    
-    # List of known small GGUF models for testing
-    model_options = [
-        {
-            "name": "phi-2.Q2_K.gguf",
-            "size_mb": 1100,
-            "url": "https://huggingface.co/TheBloke/phi-2-GGUF/resolve/main/phi-2.Q2_K.gguf",
-            "description": "Phi-2 model with Q2_K quantization (smallest)"
-        },
-        {
-            "name": "tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
-            "size_mb": 350,
-            "url": "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q2_K.gguf",
-            "description": "TinyLlama 1.1B Chat with Q2_K quantization (very small)"
-        },
-        {
-            "name": "tinyllama-1.1b-intermediate-step-1431k-3T.Q2_K.gguf",
-            "size_mb": 320,
-            "url": "https://huggingface.co/TheBloke/TinyLlama-1.1B-intermediate-step-1431k-3T-GGUF/resolve/main/tinyllama-1.1b-intermediate-step-1431k-3T.Q2_K.gguf",
-            "description": "TinyLlama 1.1B intermediate step with Q2_K quantization (smallest)"
-        }
-    ]
-    
-    # Sort by size (smallest first)
-    model_options.sort(key=lambda x: x["size_mb"])
-    
-    # Check models directory in project
-    models_dir = os.path.join(project_root, "models")
-    os.makedirs(models_dir, exist_ok=True)
-    
-    print(f"[Model Search] Checking existing models in {models_dir}")
-    
-    # Check if any of the models already exists
-    for model in model_options:
-        model_path = os.path.join(models_dir, model["name"])
-        if os.path.exists(model_path):
-            print(f"[Model Search] Found existing model: {model['name']} ({model['size_mb']} MB)")
-            return model_path, model["name"]
-    
-    # If no models found locally, select the smallest to download
-    selected_model = model_options[0]
-    print(f"[Model Search] No existing models found. Will download: {selected_model['name']} ({selected_model['size_mb']} MB)")
-    
-    return download_model(selected_model, models_dir)
-
-def download_model(model_info, dest_dir):
-    """Download a model from the provided URL with progress bar."""
-    model_path = os.path.join(dest_dir, model_info["name"])
-    
-    print(f"[Model Download] Starting download of {model_info['name']} ({model_info['size_mb']} MB)")
-    print(f"[Model Download] URL: {model_info['url']}")
-    print(f"[Model Download] Destination: {model_path}")
-    
-    try:
-        # Stream download with progress bar
-        response = requests.get(model_info["url"], stream=True)
-        response.raise_for_status()
-        
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 1024 * 1024  # 1MB
-        
-        with open(model_path, 'wb') as file, tqdm(
-            desc=f"Downloading {model_info['name']}",
-            total=total_size,
-            unit='B',
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
-            for data in response.iter_content(block_size):
-                file.write(data)
-                bar.update(len(data))
-        
-        print(f"[Model Download] Successfully downloaded {model_info['name']}")
-        return model_path, model_info["name"]
-    
-    except Exception as e:
-        print(f"[Model Download Error] Failed to download model: {e}")
-        # Fall back to dummy model if download fails
-        return None, None
-
 # --- Import Server Components (with fallback) ---
 try:
     from src.core.server import LlamaServer
@@ -160,9 +75,9 @@ TEST_HOST = "127.0.0.1"
 TEST_PORT = 8899 # Use a different port than default
 BASE_URL = f"http://{TEST_HOST}:{TEST_PORT}"
 
-# Model configuration - will be set during fixture setup
-MODEL_PATH = None
-MODEL_NAME = None
+# Model configuration - directly specify the model path
+MODEL_PATH = os.path.join(project_root, "models", "tinyllama-1.1b-chat-v1.0.Q2_K.gguf")
+MODEL_NAME = "tinyllama-1.1b-chat-v1.0.Q2_K.gguf"
 # Fallback options
 DUMMY_MODEL_FILENAME = "dummy_model_test.gguf" # Use a distinct name for test dummy
 DUMMY_MODEL_PATH = os.path.join(project_root, DUMMY_MODEL_FILENAME) # Path in project root
@@ -249,27 +164,16 @@ def manage_test_server(request):
     global server_process, MODEL_PATH, MODEL_NAME
     print("\n[Fixture] Starting test server setup...")
 
-    # Find and download a lightweight model for testing
-    print("[Fixture] Looking for a lightweight model to use for testing...")
-    model_path, model_name = find_lightweight_models()
-    
-    if model_path and os.path.exists(model_path):
-        MODEL_PATH = model_path
-        MODEL_NAME = model_name
-        print(f"[Fixture] Using model: {MODEL_NAME} at path: {MODEL_PATH}")
-    else:
-        print(f"[Fixture] No suitable model found. Will use a dummy model.")
-        # Ensure dummy model file exists as fallback
-        if not os.path.exists(DUMMY_MODEL_PATH):
-            print(f"[Fixture] Creating dummy model file: {DUMMY_MODEL_PATH}")
-            try:
-                with open(DUMMY_MODEL_PATH, 'w') as f:
-                    f.write("dummy GGUF placeholder for testing")
-            except Exception as e:
-                print(f"[Fixture Error] Could not create dummy model file: {e}")
-                # This is critical as we don't have any model
-                pytest.fail(f"Failed to create dummy model file and no real model found: {e}")
-
+    # Ensure dummy model file exists as fallback
+    if not os.path.exists(DUMMY_MODEL_PATH):
+        print(f"[Fixture] Creating dummy model file: {DUMMY_MODEL_PATH}")
+        try:
+            with open(DUMMY_MODEL_PATH, 'w') as f:
+                f.write("dummy GGUF placeholder for testing")
+        except Exception as e:
+            print(f"[Fixture Error] Could not create dummy model file: {e}")
+            # This is critical as we don't have any model
+            pytest.fail(f"Failed to create dummy model file and no real model found: {e}")
 
     print("[Fixture] Starting server process...")
     server_process = Process(target=run_server, daemon=True)

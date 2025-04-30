@@ -55,6 +55,12 @@ def main():
             api_keys=api_keys # Pass API keys
             # Pass other necessary parameters from config to LlamaServer constructor
         )
+        
+        # Явно загружаем модель перед получением FastAPI app
+        logger.info("Loading the LLM model...")
+        if not llama_server._load_model():
+            logger.error("Failed to load the model. Exiting.")
+            return
 
         logger.info(f"Starting server on {host}:{port}")
 
