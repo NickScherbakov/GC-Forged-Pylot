@@ -382,3 +382,32 @@ Priorities should be set according to the importance of components for the end u
 2. Support for encryption for data storage
 3. Configurable security policy for external APIs
 4. Logging system without saving user code
+
+# check_llama_init.py
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+from src.core.llm_llama_cpp import LlamaCppModel
+
+model_path = "dummy_model_check.gguf"
+model = LlamaCppModel(model_path)
+
+if model.is_loaded():
+    print("llama.cpp model loaded successfully.")
+else:
+    print("Failed to load llama.cpp model.")
+
+# src/core/llm_external.py
+import requests
+
+class ExternalLLM:
+    def __init__(self, api_url):
+        self.api_url = api_url
+
+    def generate_text(self, prompt):
+        response = requests.post(self.api_url, json={"prompt": prompt})
+        if response.status_code == 200:
+            return response.json().get("text", "")
+        else:
+            raise Exception(f"Failed to generate text: {response.status_code}")

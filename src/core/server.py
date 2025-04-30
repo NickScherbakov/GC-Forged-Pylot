@@ -807,3 +807,46 @@ class LlamaServer:
         except Exception as e:
             logger.error(f"Generation error: {e}")
             return None
+            
+from flask import Flask, request, jsonify
+from .llm_llama_cpp import LlamaCppModel
+from .llm_external import ExternalLLM
+
+app = Flask(__name__)
+
+llama_model_path = "dummy_model_check.gguf"
+external_api_url = "https://api.example.com/generate"
+
+llama_model = LlamaCppModel(llama_model_path)
+external_llm = ExternalLLM(external_api_url)
+
+@app.route('/generate', methods=['POST'])
+def generate_text():
+    data = request.json
+    prompt = data.get('prompt')
+    
+    if not prompt:
+        return jsonify({"error": "Prompt is required"}), 400
+    
+    try:
+        text = llama_model.generate(prompt)
+        return jsonify({"text": text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/external_generate', methods=['POST'])
+def external_generate_text():
+    data = request.json
+    prompt = data.get('prompt')
+    
+    if not prompt:
+        return jsonify({"error": "Prompt is required"}), 400
+    
+    try:
+        text = external_llm.generate_text(prompt)
+        return jsonify({"text": text})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)

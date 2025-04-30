@@ -1,6 +1,7 @@
 import os
 import logging
 import sys # Import sys for exit
+from pathlib import Path
 
 # Настройка логирования для вывода информации
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout)
@@ -51,6 +52,23 @@ except ImportError as e:
     logger.error("Please ensure 'llama-cpp-python' is installed correctly in the Python environment.")
 except Exception as e:
     logger.error(f"An unexpected error occurred during import phase: {e}", exc_info=True)
+
+# Проверка загрузки модели с использованием LlamaCppModel
+logger.info("Checking model loading with LlamaCppModel...")
+try:
+    sys.path.append(str(Path(__file__).resolve().parent.parent))
+    from src.core.llm_llama_cpp import LlamaCppModel
+
+    model_path = "dummy_model_check.gguf"
+    model = LlamaCppModel(model_path)
+
+    if model.is_loaded():
+        logger.info("llama.cpp model loaded successfully.")
+    else:
+        logger.error("Failed to load llama.cpp model.")
+
+except Exception as e:
+    logger.error(f"An error occurred while checking model loading: {e}", exc_info=True)
 
 finally:
     # Очистка фиктивного файла (опционально, можно оставить для следующих запусков)
