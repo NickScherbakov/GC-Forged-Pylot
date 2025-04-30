@@ -5,203 +5,75 @@ GC-Forged-Pylot - Точка входа в приложение
 
 Автор: GC-Forged-Pylot Team
 """
-import os
-import sys
 import argparse
-import logging
-import signal
-import time
-from pathlib import Path
-
-# Добавляем src в путь для импорта
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "src")))
-
-from core import LlamaServer, load_config
-from core.api import LlamaAPI
 import uvicorn
+import logging
+from dotenv import load_dotenv
+import os
 
-# Настройка логирования
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
+# Remove the unused import
+# from src.core.api import LlamaAPI 
+from src.core.server import LlamaServer
+from src.core.config_loader import load_config
 
-logger = logging.getLogger("gc-forged-pylot")
-
-def parse_args():
-    """Обработка аргументов командной строки."""
-    parser = argparse.ArgumentParser(
-        description="GC-Forged-Pylot - Локальный LLM сервер с интеграцией GitHub Copilot"
-    )
-    
-    parser.add_argument(
-        "--model", "-m",
-        type=str,
-        default=os.environ.get("GC_MODEL_PATH", ""),
-        help="Путь к файлу модели .gguf (или установите переменную окружения GC_MODEL_PATH)"
-    )
-    
-    parser.add_argument(
-        "--config", "-c",
-        type=str,
-        default=os.path.join(os.path.dirname(__file__), "config.json"),
-        help="Путь к файлу конфигурации (по умолчанию: ./config.json)"
-    )
-    
-    parser.add_argument(
-        "--host",
-        type=str,
-        default="0.0.0.0",
-        help="Хост для API (по умолчанию: 0.0.0.0)"
-    )
-    
-    parser.add_argument(
-        "--port", "-p",
-        type=int,
-        default=8080,
-        help="Порт для API (по умолчанию: 8080)"
-    )
-    
-    parser.add_argument(
-        "--threads", "-t",
-        type=int,
-        default=0,  # 0 означает автоопределение
-        help="Количество потоков CPU (по умолчанию: автоопределение)"
-    )
-    
-    parser.add_argument(
-        "--no-gpu",
-        action="store_true",
-        help="Отключить использование GPU"
-    )
-    
-    parser.add_argument(
-        "--verbose", "-v",
-        action="store_true",
-        help="Включить подробное логирование"
-    )
-    
-    parser.add_argument(
-        "--server-only",
-        action="store_true",
-        help="Запустить только серверную часть без API"
-    )
-    
-    return parser.parse_args()
-
-
-def setup_config(args):
-    """Настройка конфигурации на основе аргументов."""
-    # Загрузка или создание конфигурации
-    config_path = args.config if os.path.exists(args.config) else None
-    config = load_config(config_path)
-    
-    # Обновление конфигурации на основе аргументов командной строки
-    if args.model:
-        config.model_path = args.model
-    
-    if args.threads > 0:
-        config.threads = args.threads
-    
-    if args.no_gpu:
-        config.use_gpu = False
-    
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-        config.verbose = True
-    
-    config.host = args.host
-    config.port = args.port
-    
-    # Проверка наличия модели
-    if not config.model_path:
-        logger.error("Путь к модели не указан. Используйте --model или установите GC_MODEL_PATH.")
-        sys.exit(1)
-    
-    if not os.path.exists(config.model_path):
-        logger.error(f"Модель не найдена: {config.model_path}")
-        sys.exit(1)
-    
-    return config
-
-
-def setup_signal_handlers(server):
-    """Настройка обработчиков сигналов для корректного завершения."""
-    def handle_signal(sig, frame):
-        logger.info(f"Получен сигнал {sig}, завершение работы...")
-        server.stop()
-        sys.exit(0)
-    
-    signal.signal(signal.SIGINT, handle_signal)
-    signal.signal(signal.SIGTERM, handle_signal)
-
-
-def display_server_info(config):
-    """Отображает информацию о запущенном сервере."""
-    model_name = os.path.basename(config.model_path)
-    
-    logger.info("=" * 60)
-    logger.info(f" GC-Forged-Pylot запущен!")
-    logger.info("-" * 60)
-    logger.info(f" Модель: {model_name}")
-    logger.info(f" API доступно по адресу: http://{config.host}:{config.port}")
-    logger.info(f" Количество потоков: {config.threads}")
-    logger.info(f" Использование GPU: {'Да' if config.use_gpu else 'Нет'}")
-    logger.info("=" * 60)
-    logger.info(" Нажмите Ctrl+C для завершения")
-
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def main():
-    """Основная функция запуска приложения."""
-    # Вывод заголовка
-    logger.info("=" * 60)
-    logger.info(" GC-Forged-Pylot - Автономная система программирования 24/7")
-    logger.info("=" * 60)
-    
-    args = parse_args()
-    config = setup_config(args)
-    
-    # Инициализация сервера Llama
-    server = LlamaServer(model_path=config.model_path, config=config)
-    setup_signal_handlers(server)
-    
-    # Запуск сервера
-    if args.server_only:
-        # Режим только сервера (без API)
-        if not server.start():
-            logger.error("Не удалось запустить сервер")
-            sys.exit(1)
-        
-        display_server_info(config)
-        
-        # Держим процесс активным
-        try:
-            while True:
-                time.sleep(1)
-        except KeyboardInterrupt:
-            logger.info("Завершение работы...")
-            server.stop()
-    else:
-        # Режим API + сервер
-        if not server.start():
-            logger.error("Не удалось запустить сервер")
-            sys.exit(1)
-        
-        # Инициализация FastAPI приложения
-        api = LlamaAPI(server)
-        
-        display_server_info(config)
-        
-        # Запуск Uvicorn (API)
-        try:
-            uvicorn.run(api.app, host=config.host, port=config.port)
-        finally:
-            logger.info("Остановка сервера...")
-            server.stop()
+    load_dotenv() # Load environment variables from .env file
 
+    parser = argparse.ArgumentParser(description="Run the Llama Server")
+    parser.add_argument("--config", type=str, default="config.json", help="Path to the configuration file")
+    parser.add_argument("--host", type=str, default=None, help="Host to bind the server to (overrides config)")
+    parser.add_argument("--port", type=int, default=None, help="Port to bind the server to (overrides config)")
+    parser.add_argument("--reload", action="store_true", help="Enable auto-reload for development")
+    # Add other relevant arguments from config if needed for overrides
+
+    args = parser.parse_args()
+
+    try:
+        config = load_config(args.config)
+        logger.info(f"Configuration loaded from {args.config}")
+
+        # Override config with command-line arguments if provided
+        server_config = config.get('server', {})
+        host = args.host or server_config.get('host', '127.0.0.1')
+        port = args.port or server_config.get('port', 8000)
+
+        model_config = config.get('model', {})
+        cache_config = config.get('cache', {})
+        api_keys = config.get('api_keys', []) # Load API keys from config
+
+        # Initialize the LlamaServer
+        llama_server = LlamaServer(
+            model_path=model_config.get('path'),
+            n_ctx=model_config.get('n_ctx', 2048),
+            n_gpu_layers=model_config.get('n_gpu_layers', 0),
+            verbose=server_config.get('verbose', False),
+            cache_config=cache_config,
+            api_keys=api_keys # Pass API keys
+            # Pass other necessary parameters from config to LlamaServer constructor
+        )
+
+        logger.info(f"Starting server on {host}:{port}")
+
+        # Get the FastAPI app instance from the server
+        app = llama_server.get_app()
+
+        # Run the server using uvicorn
+        uvicorn.run(
+            app, # Use the app from LlamaServer
+            host=host,
+            port=port,
+            reload=args.reload,
+            log_level="info" # Or configure based on verbosity/debug flags
+        )
+
+    except FileNotFoundError:
+        logger.error(f"Configuration file not found at {args.config}")
+    except Exception as e:
+        logger.error(f"Failed to start the server: {e}", exc_info=True) # Log traceback
 
 if __name__ == "__main__":
     main()

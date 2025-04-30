@@ -335,5 +335,65 @@ def main():
         print("GC-Forged Pylot Agent остановлен.")
 
 
+# --- Add this block for testing ---
 if __name__ == "__main__":
-    main()
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logger.info("Attempting to instantiate PylotAgent with placeholders...")
+
+    # Import necessary placeholders and core components
+    from .planner import Planner
+    from .executor import Executor
+    from .memory import Memory
+    from .reasoner import Reasoner
+    from .llm_interface_adapter import AgentLLMInterface
+    from .tool_manager import ToolManager
+    from .feedback_handler import FeedbackHandler
+    # You might need a dummy core LLM or the actual one if configured
+    # For now, let's create a dummy core LLM for the adapter
+    class DummyCoreLLM:
+        def generate(self, prompt, **kwargs): return "dummy generation"
+        def chat(self, messages, **kwargs): return "dummy chat"
+
+    try:
+        # Create placeholder instances
+        dummy_core_llm = DummyCoreLLM()
+        agent_llm_interface = AgentLLMInterface(core_llm=dummy_core_llm)
+        memory = Memory()
+        tool_manager = ToolManager()
+        planner = Planner(llm_interface=agent_llm_interface)
+        reasoner = Reasoner(llm_interface=agent_llm_interface)
+        executor = Executor(tool_manager=tool_manager, llm_interface=agent_llm_interface)
+        feedback_handler = FeedbackHandler()
+
+        # Agent configuration (minimal example)
+        agent_config = {
+            "agent_name": "TestAgent",
+            "description": "Agent using placeholder components",
+            "max_iterations": 5
+        }
+
+        # Instantiate the agent
+        agent = PylotAgent(
+            config=agent_config,
+            llm_interface=agent_llm_interface,
+            memory=memory,
+            planner=planner,
+            reasoner=reasoner,
+            executor=executor,
+            tool_manager=tool_manager,
+            feedback_handler=feedback_handler
+        )
+
+        logger.info(f"PylotAgent '{agent.agent_name}' instantiated successfully!")
+
+        # Optional: Try calling a simple method like process_input
+        # logger.info("Testing process_input...")
+        # result = agent.process_input("What is the weather like?")
+        # logger.info(f"process_input result: {result}")
+
+    except ImportError as e:
+        logger.error(f"Import error during instantiation: {e}", exc_info=True)
+    except Exception as e:
+        logger.error(f"Error during agent instantiation or test: {e}", exc_info=True)

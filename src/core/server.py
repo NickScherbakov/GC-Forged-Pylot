@@ -14,8 +14,7 @@ from typing import Optional, Dict, Any, List, Tuple, Union, Callable
 
 # FastAPI imports
 try:
-    from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends, Request, BackgroundTasks
-    from fastapi.middleware.cors import CORSMiddleware
+    from fastapi import FastAPI, Request, HTTPException, Depends, status, WebSocket, WebSocketDisconnect
     from fastapi.responses import StreamingResponse
     import uvicorn
     from pydantic import BaseModel, Field
@@ -137,7 +136,7 @@ class LlamaServer:
     for IDE integration and continuous operation.
     """
     
-    def __init__(self, model_path=None, config=None):
+    def __init__(self, model_path: str, n_ctx: int = 2048, n_gpu_layers: int = 0, verbose: bool = False, cache_config: dict = None, api_keys: list = None):
         """
         Initialize the LlamaServer with model path and configuration.
         
@@ -146,10 +145,22 @@ class LlamaServer:
             config: Configuration dictionary or object
         """
         self.model_path = model_path or os.environ.get("GC_MODEL_PATH")
-        self.config = config or {}
+        self.config = {
+            "n_ctx": n_ctx,
+            "n_gpu_layers": n_gpu_layers,
+            "verbose": verbose,
+            **(cache_config or {}),
+            **(api_keys or {})
+        }
         self.running = False
         self.server_thread = None
-        self._app = None
+        self.app = FastAPI(
+            title="Local Llama Server",
+            description="OpenAI-compatible API for local Llama models",
+            version="0.1.0"
+        )
+        self._configure_routes()
+        self._configure_middleware() # Add middleware configuration if needed
         self._llm_instance = None
         self._cache = ModelCache(
             max_size=self.config.get("cache_size", 100),
@@ -208,27 +219,7 @@ class LlamaServer:
             logger.error(f"Failed to load model: {e}")
             return False
         
-    def _setup_api(self):
-        """Set up the FastAPI application."""
-        if not FASTAPI_AVAILABLE:
-            logger.error("FastAPI not available. Cannot set up API server.")
-            return False
-            
-        self._app = FastAPI(
-            title="GC-Forged-Pylot API",
-            description="LLM server API for GC-Forged-Pylot",
-            version="1.0.0"
-        )
-        
-        # Добавляем CORS middleware для разрешения кросс-доменных запросов
-        self._app.add_middleware(
-            CORSMiddleware,
-            allow_origins=["*"],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
-        )
-        
+    def _configure_routes(self):
         # Определяем модели для API если доступен FastAPI
         if FASTAPI_AVAILABLE:
             # Создаем модели данных
@@ -264,7 +255,7 @@ class LlamaServer:
             self._start_time = time.time()
             
             # API-эндпоинты
-            @self._app.get("/v1/status")
+            @self.app.get("/v1/status")
             async def get_status():
                 """Get the server status."""
                 cache_stats = self._cache.get_stats()
@@ -277,7 +268,7 @@ class LlamaServer:
                     "cache": cache_stats
                 }
                 
-            @self._app.get("/v1/models")
+            @self.app.get("/v1/models")
             async def list_models():
                 """List available models."""
                 model_name = os.path.basename(self.model_path) if self.model_path else "unknown"
@@ -297,7 +288,7 @@ class LlamaServer:
                     ]
                 }
                 
-            @self._app.post("/v1/completions")
+            @self.app.post("/v1/completions")
             async def create_completion(request: CompletionRequest):
                 """Create a completion for the given prompt."""
                 if not self._llm_instance:
@@ -414,7 +405,7 @@ class LlamaServer:
                     yield f"data: {json.dumps({'error': str(e)})}\n\n"
                     yield "data: [DONE]\n\n"
                     
-            @self._app.post("/v1/chat/completions")
+            @self.app.post("/v1/chat/completions")
             async def create_chat_completion(request: ChatRequest):
                 """Create a chat completion."""
                 if not self._llm_instance:
@@ -538,7 +529,7 @@ class LlamaServer:
                     yield f"data: {json.dumps({'error': str(e)})}\n\n"
                     yield "data: [DONE]\n\n"
                     
-            @self._app.websocket("/ws/completions")
+            @self.app.websocket("/ws/completions")
             async def websocket_endpoint(websocket: WebSocket):
                 """WebSocket endpoint for streaming completions."""
                 await websocket.accept()
@@ -639,14 +630,14 @@ class LlamaServer:
                     logger.error(f"Error in WebSocket chat: {e}")
                     await websocket.send_json({"error": str(e)})
                     
-            @self._app.get("/v1/config")
+            @self.app.get("/v1/config")
             async def get_config():
                 """Get current server configuration."""
                 # Возвращаем безопасную копию конфига без чувствительной информации
                 safe_config = {k: v for k, v in self.config.items() if k not in ["api_key", "secret"]}
                 return {"config": safe_config}
                 
-            @self._app.post("/v1/config")
+            @self.app.post("/v1/config")
             async def update_config(config: Dict[str, Any]):
                 """Update server configuration."""
                 # Обновляем конфигурацию
@@ -663,7 +654,24 @@ class LlamaServer:
         # Готово, возвращаем True
         logger.info("API endpoints configured successfully")
         return True
-        
+
+    def _configure_middleware(self):
+        # Example: Add CORS middleware if needed
+        # from fastapi.middleware.cors import CORSMiddleware
+        # origins = ["*"] # Adjust as needed
+        # self.app.add_middleware(
+        #     CORSMiddleware,
+        #     allow_origins=origins,
+        #     allow_credentials=True,
+        #     allow_methods=["*"],
+        #     allow_headers=["*"],
+        # )
+        pass # Add other middleware if necessary
+
+    def get_app(self):
+        """Returns the FastAPI application instance."""
+        return self.app
+
     def start(self, host="0.0.0.0", port=8080):
         """Start the LlamaServer on the specified host and port."""
         if self.running:
@@ -702,7 +710,7 @@ class LlamaServer:
         try:
             # Запускаем uvicorn с настроенным приложением FastAPI
             uvicorn.run(
-                self._app,
+                self.app,
                 host=host,
                 port=port,
                 log_level="info"
