@@ -32,92 +32,18 @@ class HardwareProfile:
 @dataclass
 class LlamaConfig:
     """Configuration for the Llama server and model."""
-    # Model settings
-    model_path: str = ""
-    model_type: str = "llama"  # llama, alpaca, wizard, etc.
-    context_size: int = 4096
-    
-    # Hardware settings
-    use_gpu: bool = True
-    gpu_layers: int = -1  # -1 means all layers to GPU if possible
-    threads: int = 8
-    batch_size: int = 512
-    
-    # Generation settings
-    temperature: float = 0.7
-    top_p: float = 0.95
-    top_k: int = 40
-    repeat_penalty: float = 1.1
-    seed: int = 42
-    
-    # Server settings
-    host: str = "0.0.0.0"
+    n_ctx: int = 2048
+    n_batch: int = 512
+    n_gpu_layers: int = 0
+    n_threads: int = 4
+    embedding: bool = True
+    model_path: str = field(default_factory=lambda: get_default_model_path())
+    model_vram_gb: float = 6.0
+    stop_words: List[str] = field(default_factory=list)
     port: int = 8080
-    api_key: str = ""
-    
-    # Hardware profile (auto-detected)
+    host: str = "127.0.0.1"
     hardware_profile: HardwareProfile = field(default_factory=HardwareProfile)
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary."""
-        return asdict(self)
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'LlamaConfig':
-        """Create from dictionary."""
-        config_data = data.copy()
-        
-        # Handle nested hardware profile
-        if "hardware_profile" in config_data and isinstance(config_data["hardware_profile"], dict):
-            hardware_data = config_data.pop("hardware_profile")
-            config = cls(**config_data)
-            config.hardware_profile = HardwareProfile(**hardware_data)
-            return config
-        
-        return cls(**config_data)
-    
-    def save(self, config_path: str) -> None:
-        """Save configuration to file."""
-        with open(config_path, 'w') as f:
-            json.dump(self.to_dict(), f, indent=2)
-        logger.info(f"Configuration saved to {config_path}")
-    
-    def optimize_for_hardware(self) -> None:
-        """Optimize settings based on detected hardware."""
-        self.detect_hardware()
-        
-        # CPU optimization
-        if "i9-11900" in self.hardware_profile.cpu_model:
-            # Intel i9-11900KF optimization
-            self.threads = min(8, self.hardware_profile.cpu_threads // 2)
-            logger.info(f"Optimized for Intel i9-11900KF with {self.threads} threads")
-        else:
-            # Generic optimization: use half of available threads
-            self.threads = max(1, self.hardware_profile.cpu_threads // 2)
-        
-        # GPU optimization
-        if self.hardware_profile.has_amd_gpu:
-            if "RX 580" in self.hardware_profile.gpu_model:
-                # RX 580 has 4GB VRAM, adjust accordingly
-                self.gpu_layers = 24  # Conservative setting for 4GB VRAM
-                self.context_size = 2048  # Reduce context for better performance
-                logger.info("Optimized for AMD RX 580 with 4GB VRAM")
-            elif self.hardware_profile.gpu_vram > 6000:
-                # More capable AMD GPU
-                self.gpu_layers = -1  # Use all layers
-            else:
-                # Limited VRAM
-                self.gpu_layers = 12  # Very conservative
-        
-        # Adjust batch size based on available RAM
-        if self.hardware_profile.total_ram > 32000:  # More than 32GB
-            self.batch_size = 1024
-        elif self.hardware_profile.total_ram > 16000:  # More than 16GB
-            self.batch_size = 512
-        else:
-            self.batch_size = 256
-        
-        logger.info(f"Configuration optimized for detected hardware")
+    tensor_split: List[float] = field(default_factory=list)
     
     def detect_hardware(self) -> None:
         """Detect and populate hardware information."""
@@ -212,76 +138,166 @@ class LlamaConfig:
                 profile.has_rocm = True
                 logger.info("AMD OCL detected, assuming ROCm compatibility")
 
+    def optimize_for_hardware(self) -> None:
+        """Optimize configuration based on detected hardware."""
+        # First ensure hardware is detected
+        if not self.hardware_profile.cpu_model or self.hardware_profile.cpu_model == "Unknown":
+            self.detect_hardware()
+        
+        # Use hardware optimizer for advanced optimization
+        try:
+            from .hardware_optimizer import HardwareOptimizer
+            optimizer = HardwareOptimizer()
+            
+            # Check if this is the first run or if hardware profile has changed
+            if optimizer._is_profile_outdated():
+                logger.info("Hardware profile outdated or not present. Running optimization...")
+                # Use the model path for benchmarking if available
+                if os.path.exists(self.model_path):
+                    optimizer.run_optimization(self.model_path)
+                else:
+                    # Still update hardware profile without running benchmark
+                    optimizer._update_hardware_profile()
+                    optimizer.optimize_compilation_flags()
+                    optimizer.optimize_runtime_parameters()
+            
+            # Apply optimized parameters to config
+            params = optimizer.get_optimal_launch_parameters()
+            self.n_threads = params.get("threads", self.n_threads)
+            self.n_ctx = params.get("n_ctx", self.n_ctx)
+            self.n_batch = params.get("batch_size", self.n_batch)
+            self.n_gpu_layers = params.get("n_gpu_layers", self.n_gpu_layers)
+            self.tensor_split = params.get("tensor_split", self.tensor_split)
+            
+            logger.info(f"Applied optimized parameters: threads={self.n_threads}, " +
+                      f"n_ctx={self.n_ctx}, batch={self.n_batch}, gpu_layers={self.n_gpu_layers}")
+            
+        except ImportError:
+            # Fall back to basic optimization if hardware_optimizer is not available
+            self._basic_hardware_optimization()
+    
+    def _basic_hardware_optimization(self) -> None:
+        """Basic optimization based on detected hardware (fallback)."""
+        profile = self.hardware_profile
+        
+        # Optimize thread count
+        self.n_threads = min(profile.cpu_cores, max(4, profile.cpu_cores - 1))
+        
+        # GPU layers
+        if profile.has_nvidia_gpu and profile.has_cuda:
+            if profile.gpu_vram >= 8000:
+                self.n_gpu_layers = 32
+            elif profile.gpu_vram >= 4000:
+                self.n_gpu_layers = 20
+            elif profile.gpu_vram > 0:
+                self.n_gpu_layers = 8
+        elif profile.has_amd_gpu and profile.has_rocm:
+            if profile.gpu_vram >= 8000:
+                self.n_gpu_layers = 28
+            elif profile.gpu_vram >= 4000:
+                self.n_gpu_layers = 16
+            elif profile.gpu_vram > 0:
+                self.n_gpu_layers = 4
+            
+        # Context size based on RAM
+        if profile.total_ram > 32000:
+            self.n_ctx = 4096
+        elif profile.total_ram > 16000:
+            self.n_ctx = 2048
+        else:
+            self.n_ctx = 1024
+            
+        # Batch size
+        if profile.total_ram > 16000:
+            self.n_batch = 512
+        else:
+            self.n_batch = 256
+
+        logger.info(f"Applied basic optimization: threads={self.n_threads}, " +
+                  f"n_ctx={self.n_ctx}, batch={self.n_batch}, gpu_layers={self.n_gpu_layers}")
 
 def cpuinfo() -> Dict[str, Any]:
     """Get CPU information."""
+    info = {}
+    
     if platform.system() == "Windows":
         try:
             import wmi
             c = wmi.WMI()
             for cpu in c.Win32_Processor():
-                return {"brand_raw": cpu.Name}
+                info["brand_raw"] = cpu.Name
+                break
         except:
-            pass
-    
-    # Fallback to platform info
-    return {"brand_raw": platform.processor() or "Unknown CPU"}
+            # Fallback to platform
+            info["brand_raw"] = platform.processor()
+    elif platform.system() == "Linux":
+        try:
+            with open('/proc/cpuinfo', 'r') as f:
+                for line in f:
+                    if line.strip():
+                        if line.rstrip('\n').startswith('model name'):
+                            info["brand_raw"] = line.rstrip('\n').split(':')[1].strip()
+                            break
+        except:
+            info["brand_raw"] = platform.processor()
+    else:  # Darwin/macOS
+        try:
+            import subprocess
+            output = subprocess.check_output(['sysctl', '-n', 'machdep.cpu.brand_string']).decode('utf-8').strip()
+            info["brand_raw"] = output
+        except:
+            info["brand_raw"] = platform.processor()
+            
+    if not info.get("brand_raw"):
+        info["brand_raw"] = platform.processor() or "Unknown CPU"
+        
+    return info
 
 
 def load_config(config_path: Optional[str] = None) -> LlamaConfig:
-    """
-    Load configuration from file or create default.
-    
-    Args:
-        config_path: Path to config file
-        
-    Returns:
-        LlamaConfig object
-    """
-    if config_path and os.path.exists(config_path):
-        try:
-            with open(config_path, 'r') as f:
-                config_data = json.load(f)
-            config = LlamaConfig.from_dict(config_data)
-            logger.info(f"Configuration loaded from {config_path}")
-            return config
-        except Exception as e:
-            logger.error(f"Error loading configuration: {e}")
-    
-    # Create default config
+    """Load configuration from file or use defaults."""
     config = LlamaConfig()
+    
+    if not config_path:
+        config_paths = [
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "config", "llama_config.json"),
+            os.path.expanduser("~/.gcforgedpylot/config.json")
+        ]
+    else:
+        config_paths = [config_path]
+    
+    for path in config_paths:
+        if os.path.exists(path):
+            try:
+                with open(path, "r") as f:
+                    config_dict = json.load(f)
+                
+                # Update config from file
+                for key, value in config_dict.items():
+                    if hasattr(config, key):
+                        setattr(config, key, value)
+                
+                logger.info(f"Loaded configuration from {path}")
+                break
+            except Exception as e:
+                logger.error(f"Failed to load config from {path}: {e}")
+    
+    # Always do hardware detection and optimization
+    config.detect_hardware()
     config.optimize_for_hardware()
     
-    # Set model path to environment variable if exists
-    if os.environ.get("GC_MODEL_PATH"):
-        config.model_path = os.environ.get("GC_MODEL_PATH")
-    
-    if config_path:
-        config.save(config_path)
-        
     return config
 
 
 def get_default_model_path() -> str:
     """Get default model path."""
-    # Check environment variable first
-    if os.environ.get("GC_MODEL_PATH"):
-        return os.environ.get("GC_MODEL_PATH")
+    # Try to find a model in the models directory
+    models_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "models")
     
-    # Check standard locations
-    base_dirs = [
-        os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "models"),
-        os.path.join(os.path.expanduser("~"), "gc-forged-pylot", "models"),
-        os.path.join(os.environ.get("APPDATA", ""), "gc-forged-pylot", "models") if platform.system() == "Windows" else None
-    ]
+    if os.path.exists(models_dir):
+        model_files = [f for f in os.listdir(models_dir) if f.endswith('.gguf')]
+        if model_files:
+            return os.path.join(models_dir, model_files[0])
     
-    model_extensions = [".gguf", ".bin"]
-    
-    for base_dir in filter(None, base_dirs):
-        if os.path.exists(base_dir):
-            for ext in model_extensions:
-                models = list(Path(base_dir).glob(f"*{ext}"))
-                if models:
-                    return str(models[0])
-    
-    return ""
+    # Default to a well-known model
+    return os.path.join(models_dir, "tinyllama-1.1b-chat-v1.0.Q2_K.gguf")

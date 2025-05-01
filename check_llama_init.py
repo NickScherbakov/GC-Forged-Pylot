@@ -1,82 +1,175 @@
+#!/usr/bin/env python
+"""
+Скрипт проверки и оптимизации системы для запуска llama.cpp.
+Выполняется при первом запуске или при обнаружении изменений в оборудовании.
+"""
 import os
+import sys
 import logging
-import sys # Import sys for exit
+import argparse
 from pathlib import Path
 
-# Настройка логирования для вывода информации
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s', stream=sys.stdout)
-logger = logging.getLogger(__name__)
+# Добавляем проект в путь импорта
+sys.path.insert(0, str(Path(__file__).parent))
 
-# Создадим фиктивный файл, если его нет
-dummy_model_filename = "dummy_model_check.gguf"
-logger.info(f"Checking for dummy model file: {dummy_model_filename}")
-if not os.path.exists(dummy_model_filename):
-    logger.info(f"Creating dummy model file: {dummy_model_filename}")
+from src.core.hardware_optimizer import HardwareOptimizer
+from src.core.config import load_config
+
+# Настройка логирования
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('llama_init.log')
+    ]
+)
+
+logger = logging.getLogger("check_llama_init")
+
+
+def check_first_run() -> bool:
+    """
+    Проверяет, является ли это первым запуском системы.
+    
+    Returns:
+        bool: True если это первый запуск, иначе False
+    """
+    # Проверяем наличие файла профиля оборудования
+    hardware_profile_path = os.path.join("config", "hardware_profile.json")
+    if not os.path.exists(hardware_profile_path):
+        return True
+    
+    # Проверяем наличие директории bin с скомпилированным сервером
+    bin_dir = os.path.join("bin")
+    server_path = os.path.join(bin_dir, "llama-server")
+    if platform.system() == "Windows":
+        server_path += ".exe"
+    
+    if not os.path.exists(server_path):
+        return True
+    
+    return False
+
+
+def check_hardware_changes(optimizer: HardwareOptimizer) -> bool:
+    """
+    Проверяет наличие изменений в оборудовании.
+    
+    Args:
+        optimizer: Инициализированный оптимизатор
+    
+    Returns:
+        bool: True если обнаружены изменения, иначе False
+    """
+    return optimizer._is_profile_outdated()
+
+
+def perform_optimization(quiet: bool = False, force: bool = False) -> bool:
+    """
+    Выполняет оптимизацию системы при необходимости.
+    
+    Args:
+        quiet: Подавлять вывод
+        force: Принудительная оптимизация
+    
+    Returns:
+        bool: True если оптимизация выполнена успешно, иначе False
+    """
     try:
-        with open(dummy_model_filename, 'w') as f:
-            f.write("dummy check file for llama_cpp initialization test")
-        logger.info("Dummy file created successfully.")
+        optimizer = HardwareOptimizer()
+        
+        # Проверяем необходимость оптимизации
+        is_first_run = check_first_run()
+        has_hardware_changes = check_hardware_changes(optimizer)
+        
+        if is_first_run or has_hardware_changes or force:
+            if not quiet:
+                if is_first_run:
+                    logger.info("Первый запуск системы. Выполняем начальную оптимизацию.")
+                elif has_hardware_changes:
+                    logger.info("Обнаружены изменения в оборудовании. Выполняем переоптимизацию.")
+                else:
+                    logger.info("Принудительная оптимизация.")
+            
+            # Загружаем конфигурацию
+            config = load_config()
+            
+            # Обновляем профиль оборудования
+            optimizer._update_hardware_profile()
+            
+            # Оптимизируем параметры запуска
+            optimizer.optimize_compilation_flags()
+            optimizer.optimize_runtime_parameters()
+            
+            # Если есть доступная модель, выполняем бенчмаркинг
+            if os.path.exists(config.model_path):
+                if not quiet:
+                    logger.info(f"Запуск бенчмарка на модели: {config.model_path}")
+                
+                try:
+                    optimizer.run_benchmark(config.model_path, iterations=1)
+                except Exception as e:
+                    if not quiet:
+                        logger.warning(f"Не удалось выполнить бенчмаркинг: {e}")
+            
+            # Если сервер еще не скомпилирован, пытаемся его собрать
+            bin_dir = os.path.join("bin")
+            server_path = os.path.join(bin_dir, "llama-server")
+            if platform.system() == "Windows":
+                server_path += ".exe"
+            
+            if not os.path.exists(server_path):
+                if not quiet:
+                    logger.info("Сервер не найден. Пытаемся скомпилировать.")
+                
+                try:
+                    # Компиляция сервера (может быть продолжительной!)
+                    compile_success = optimizer.compile_optimized_server()
+                    
+                    if not quiet:
+                        if compile_success:
+                            logger.info("Сервер успешно скомпилирован.")
+                        else:
+                            logger.warning("Не удалось скомпилировать сервер.")
+                except Exception as e:
+                    if not quiet:
+                        logger.warning(f"Ошибка компиляции сервера: {e}")
+            
+            return True
+        else:
+            if not quiet:
+                logger.info("Система уже оптимизирована.")
+            return True
+            
     except Exception as e:
-        logger.error(f"Failed to create dummy file: {e}", exc_info=True)
-        logger.error("Exiting due to dummy file creation failure.")
-        sys.exit(1) # Use sys.exit for cleaner exit
-else:
-    logger.info(f"Dummy model file '{dummy_model_filename}' already exists.")
+        if not quiet:
+            logger.error(f"Ошибка при оптимизации системы: {e}")
+        return False
 
-logger.info("Attempting to import Llama from llama_cpp...")
-try:
-    from llama_cpp import Llama
-    logger.info("Llama imported successfully.")
 
-    logger.info(f"Attempting to initialize Llama with dummy model path: {dummy_model_filename}")
-    initialization_successful = False
-    try:
-        # Попытка инициализации с минимальными параметрами и фиктивным путем
-        llm = Llama(
-            model_path=dummy_model_filename,
-            n_ctx=512,       # Минимальный контекст
-            n_gpu_layers=0, # Без использования GPU для этого теста
-            verbose=True     # Включим подробный вывод от llama_cpp
-        )
-        # Если инициализация не вызвала исключение, считаем ее успешной на этом этапе
-        logger.info("Llama initialized successfully (using dummy model path).")
-        logger.info("Note: This only checks library loading and basic initialization, not model validity.")
-        initialization_successful = True
+def main():
+    parser = argparse.ArgumentParser(
+        description="Проверка и оптимизация системы для запуска llama.cpp"
+    )
+    parser.add_argument(
+        "--quiet", 
+        action="store_true", 
+        help="Подавлять вывод сообщений"
+    )
+    parser.add_argument(
+        "--force", 
+        action="store_true", 
+        help="Принудительная оптимизация"
+    )
+    
+    args = parser.parse_args()
+    
+    success = perform_optimization(args.quiet, args.force)
+    
+    return 0 if success else 1
 
-    except Exception as e:
-        logger.error(f"Error during Llama initialization: {e}", exc_info=True)
-        logger.error("This might indicate issues with llama-cpp-python installation, dependencies (like compilers or BLAS libraries), or basic library loading.")
 
-except ImportError as e:
-    logger.error(f"Failed to import Llama from llama_cpp: {e}", exc_info=True)
-    logger.error("Please ensure 'llama-cpp-python' is installed correctly in the Python environment.")
-except Exception as e:
-    logger.error(f"An unexpected error occurred during import phase: {e}", exc_info=True)
-
-# Проверка загрузки модели с использованием LlamaCppModel
-logger.info("Checking model loading with LlamaCppModel...")
-try:
-    sys.path.append(str(Path(__file__).resolve().parent.parent))
-    from src.core.llm_llama_cpp import LlamaCppModel
-
-    model_path = "dummy_model_check.gguf"
-    model = LlamaCppModel(model_path)
-
-    if model.is_loaded():
-        logger.info("llama.cpp model loaded successfully.")
-    else:
-        logger.error("Failed to load llama.cpp model.")
-
-except Exception as e:
-    logger.error(f"An error occurred while checking model loading: {e}", exc_info=True)
-
-finally:
-    # Очистка фиктивного файла (опционально, можно оставить для следующих запусков)
-    # logger.info("Attempting cleanup...")
-    # if os.path.exists(dummy_model_filename):
-    #     try:
-    #         os.remove(dummy_model_filename)
-    #         logger.info(f"Cleaned up dummy model file: {dummy_model_filename}")
-    #     except Exception as e:
-    #         logger.warning(f"Could not remove dummy file '{dummy_model_filename}': {e}")
-    logger.info("Script finished.") # Add a final message
+if __name__ == "__main__":
+    import platform
+    sys.exit(main())

@@ -9,20 +9,70 @@
 - **Streaming Support:** Provides streaming responses for real-time data through HTTP and WebSocket protocols.
 - **Caching:** Uses an in-memory cache to speed up repeated requests.
 - **Environment Configurable:** Loads configuration from a JSON file and environment variables.
+- **Hardware Optimization:** Automatically detects hardware capabilities and optimizes LLM parameters.
+- **Self-Improvement:** Features a continuous learning loop that allows the system to refine itself.
+- **Autonomous Operation:** Can run in autonomous mode, completing tasks with minimal human input.
+
+## Advanced Capabilities
+
+### Hardware Optimization System
+
+GC-Forged-Pylot includes a sophisticated hardware optimization system that:
+
+- **Auto-detects hardware** - Identifies CPU, RAM, and GPU specifications
+- **Optimizes compilation** - Selects optimal flags for compiling llama.cpp
+- **Tunes runtime parameters** - Determines optimal thread count, context size, batch size, and GPU layers
+- **Benchmarks performance** - Tests various configurations to find the optimal setup
+- **Persists profiles** - Saves hardware profiles for subsequent launches
+- **Mock benchmarking** - Can run simulated benchmarks on systems without development tools
+
+```bash
+# Optimize hardware settings and parameters
+python optimize_llama.py --benchmark --model ./models/your-model.gguf
+
+# Skip compilation on systems without development tools
+python optimize_llama.py --benchmark --skip-compilation --model ./models/your-model.gguf
+```
+
+### Self-Improvement System
+
+The system includes a self-improvement mechanism that allows it to:
+
+- **Analyze tasks** - Determine required capabilities for task completion
+- **Generate code** - Create new modules to address missing functionality
+- **Evaluate results** - Assess the quality of its own outputs
+- **Learn from feedback** - Process user feedback to improve future performance
+- **Autonomous cycles** - Run continuous improvement loops until reaching confidence threshold
+
+```bash
+# Execute a task with self-improvement cycles
+python run_autonomous.py "Your task description" --cycles 5 --threshold 0.9
+
+# Run in continuous self-improvement mode
+python run_autonomous.py "Your task description" --continuous
+```
 
 ## Project Structure
 
 ```
 GC-Forged-Pylot/
-├── main.py                # Entry point for the LLM server ([main.py](e:\GC-Forged-Pylot\main.py))
+├── main.py                # Entry point for the LLM server
+├── optimize_llama.py      # Hardware optimization script
+├── run_autonomous.py      # Autonomous agent runner with self-improvement
 ├── setup.py               # Package setup script and dependencies
+├── config/                # Configuration files
+│   ├── agent_config.json  # Agent configuration
+│   ├── hardware_profile.json # Hardware optimization profile
 ├── src/
-│   └── core/
-│       ├── server.py      # Server implementation and API endpoints ([src/core/server.py](e:\GC-Forged-Pylot\src\core\server.py))
-│       ├── ...            # Other modules (e.g. configuration, LLM interface)
+│   ├── core/
+│   │   ├── hardware_optimizer.py # Hardware detection and optimization
+│   │   ├── server.py      # Server implementation and API endpoints
+│   │   ├── ...            # Other core modules
+│   ├── self_improvement.py # Self-improvement and continuous learning module
+│   ├── bridge/            # Bridges to external systems and tools
+│   └── pylot-agent/       # Autonomous agent implementation
 └── tests/
-    └── core/
-         └── test_server_api.py  # API tests for the server
+    └── core/              # Test modules
 ```
 
 ## Installation
