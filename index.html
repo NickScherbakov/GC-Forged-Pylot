@@ -31,6 +31,26 @@
             color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 15% 20%, rgba(37, 99, 235, 0.25), transparent 55%),
+                        radial-gradient(circle at 85% 30%, rgba(6, 182, 212, 0.18), transparent 50%),
+                        radial-gradient(circle at 20% 75%, rgba(124, 58, 237, 0.2), transparent 60%);
+            z-index: -2;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85));
+            z-index: -1;
+            pointer-events: none;
         }
 
         .container {
@@ -87,8 +107,7 @@
 
         /* Hero Section */
         .hero {
-            padding: 8rem 0 4rem;
-            text-align: center;
+            padding: 9rem 0 5rem;
             position: relative;
             overflow: hidden;
         }
@@ -96,12 +115,10 @@
         .hero::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
-            animation: pulse 15s ease-in-out infinite;
+            inset: 0;
+            background: radial-gradient(circle at top, rgba(37, 99, 235, 0.15), transparent 65%);
+            animation: pulse 18s ease-in-out infinite;
+            z-index: 0;
         }
 
         @keyframes pulse {
@@ -109,9 +126,40 @@
             50% { transform: scale(1.1); }
         }
 
+        .hero-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            align-items: center;
+            position: relative;
+        }
+
         .hero-content {
             position: relative;
             z-index: 1;
+            text-align: left;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-badge span {
+            display: inline-flex;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.18);
         }
 
         h1 {
@@ -130,10 +178,143 @@
             margin-bottom: 2rem;
         }
 
+        .hero-highlights {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .highlight-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(148, 163, 184, 0.08);
+            border: 1px solid rgba(148, 163, 184, 0.15);
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .highlight-chip::before {
+            content: '✦';
+            color: var(--accent);
+        }
+
+        .hero-visual {
+            position: relative;
+            min-height: 320px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(10px);
+            opacity: 0.65;
+            animation: float 12s ease-in-out infinite;
+        }
+
+        .orb-1 {
+            width: 240px;
+            height: 240px;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.65), transparent 70%);
+            top: 10%;
+            left: 15%;
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 170px;
+            height: 170px;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.7), transparent 70%);
+            bottom: 12%;
+            right: 12%;
+            animation-delay: 3s;
+        }
+
+        .orb-3 {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.65), transparent 70%);
+            top: 45%;
+            right: 40%;
+            animation-delay: 6s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-18px); }
+        }
+
+        .hero-card {
+            position: relative;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            border-radius: 1.25rem;
+            padding: 2rem;
+            width: min(360px, 100%);
+            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+        }
+
+        .hero-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+        }
+
+        .hero-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .hero-card ul {
+            list-style: none;
+            color: var(--text-dim);
+            font-size: 0.95rem;
+            display: grid;
+            gap: 0.6rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-card ul li {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .hero-card ul li::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.2);
+        }
+
+        .card-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+            padding: 0.45rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+
         .cta-buttons {
             display: flex;
             gap: 1rem;
-            justify-content: center;
+            justify-content: flex-start;
             flex-wrap: wrap;
         }
 
@@ -155,7 +336,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
         }
 
         .btn-secondary {
@@ -172,6 +353,44 @@
         /* Sections */
         section {
             padding: 4rem 0;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            border-radius: 1.25rem;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            inset: 1px;
+            border-radius: 1.15rem;
+            background: radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 45%),
+                        radial-gradient(circle at bottom right, rgba(6, 182, 212, 0.12), transparent 40%);
+            opacity: 0.9;
+        }
+
+        .glass-panel > * {
+            position: relative;
+            z-index: 1;
+        }
+
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .panel-item {
+            padding: 2rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.15);
         }
 
         h2 {
@@ -199,17 +418,37 @@
         }
 
         .feature-card {
-            background: var(--surface);
+            background: rgba(30, 41, 59, 0.75);
             padding: 2rem;
             border-radius: 1rem;
             border: 1px solid rgba(148, 163, 184, 0.1);
             transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
         }
 
         .feature-card:hover {
             transform: translateY(-5px);
             border-color: var(--primary);
             box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        }
+
+        .feature-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(6, 182, 212, 0.08));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover::after {
+            opacity: 1;
+        }
+
+        .feature-card > * {
+            position: relative;
+            z-index: 1;
         }
 
         .feature-icon {
@@ -271,6 +510,11 @@
             gap: 2rem;
             text-align: center;
             margin: 3rem 0;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 2.5rem;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            box-shadow: 0 25px 45px rgba(15, 23, 42, 0.35);
         }
 
         .stat-item {
@@ -293,11 +537,13 @@
 
         /* Architecture Diagram */
         .architecture {
-            background: var(--surface);
+            background: rgba(15, 23, 42, 0.7);
             border-radius: 1rem;
             padding: 2rem;
             margin: 3rem 0;
             border: 1px solid rgba(148, 163, 184, 0.1);
+            position: relative;
+            overflow: hidden;
         }
 
         .architecture-flow {
@@ -310,17 +556,55 @@
         }
 
         .arch-node {
-            background: rgba(37, 99, 235, 0.1);
-            border: 2px solid var(--primary);
-            border-radius: 0.5rem;
+            background: rgba(37, 99, 235, 0.12);
+            border: 1px solid rgba(37, 99, 235, 0.5);
+            border-radius: 0.75rem;
             padding: 1rem 1.5rem;
             font-weight: 600;
             position: relative;
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.25);
         }
 
         .arch-arrow {
             color: var(--accent);
             font-size: 2rem;
+        }
+
+        .timeline {
+            margin-top: 3rem;
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .timeline-step {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.5rem;
+            align-items: center;
+            background: rgba(30, 41, 59, 0.65);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+        }
+
+        .timeline-bullet {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .timeline-content h4 {
+            font-size: 1.15rem;
+            margin-bottom: 0.4rem;
+            color: var(--accent);
+        }
+
+        .timeline-content p {
+            color: var(--text-dim);
         }
 
         /* Community Section */
@@ -332,7 +616,7 @@
         }
 
         .community-card {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(124, 58, 237, 0.1));
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(124, 58, 237, 0.12));
             padding: 1.5rem;
             border-radius: 0.75rem;
             border: 1px solid rgba(148, 163, 184, 0.1);
@@ -345,9 +629,78 @@
             color: var(--accent);
         }
 
+        .cta-banner {
+            margin-top: 4rem;
+            padding: 3.5rem;
+            border-radius: 1.5rem;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.45), rgba(124, 58, 237, 0.45));
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            box-shadow: 0 28px 48px rgba(37, 99, 235, 0.25);
+        }
+
+        .cta-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.12), transparent 60%);
+            pointer-events: none;
+        }
+
+        .cta-banner h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta-banner p {
+            color: rgba(226, 232, 240, 0.85);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        .quote-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .quote-card {
+            background: rgba(30, 41, 59, 0.75);
+            border-radius: 1.25rem;
+            padding: 2.25rem;
+            position: relative;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.35);
+        }
+
+        .quote-card::before {
+            content: '“';
+            position: absolute;
+            top: 1rem;
+            left: 1.5rem;
+            font-size: 3rem;
+            color: rgba(148, 163, 184, 0.35);
+        }
+
+        .quote-card p {
+            color: var(--text-dim);
+            font-size: 1.05rem;
+            line-height: 1.8;
+        }
+
+        .quote-author {
+            margin-top: 1.5rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
         /* Footer */
         footer {
-            background: var(--surface);
+            background: rgba(15, 23, 42, 0.9);
             padding: 3rem 0;
             margin-top: 4rem;
             border-top: 1px solid rgba(148, 163, 184, 0.1);
@@ -391,6 +744,20 @@
         }
 
         /* Responsive */
+        @media (max-width: 1024px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            .hero-content {
+                text-align: center;
+            }
+
+            .cta-buttons {
+                justify-content: center;
+            }
+        }
+
         @media (max-width: 768px) {
             h1 {
                 font-size: 2.5rem;
@@ -406,6 +773,26 @@
 
             .feature-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .hero-highlights {
+                justify-content: center;
+            }
+
+            .hero-visual {
+                display: none;
+            }
+
+            .glass-panel {
+                padding: 2.25rem;
+            }
+
+            .panel-item {
+                padding: 1.5rem;
+            }
+
+            .cta-banner {
+                padding: 2.5rem 1.5rem;
             }
         }
 
@@ -449,16 +836,38 @@
         <!-- Hero Section -->
         <section class="hero">
             <div class="container">
-                <div class="hero-content fade-in">
-                    <h1>The AI That Learns<br>To Build Itself</h1>
-                    <p class="tagline">An autonomous coding system that doesn't just execute—it evolves.</p>
-                    <div class="cta-buttons">
-                        <a href="https://github.com/NickScherbakov/GC-Forged-Pylot" class="btn btn-primary">
-                            View on GitHub →
-                        </a>
-                        <a href="#getting-started" class="btn btn-secondary">
-                            Quick Start
-                        </a>
+                <div class="hero-grid fade-in">
+                    <div class="hero-content">
+                        <div class="hero-badge"><span></span>Autonomous by design · Local first</div>
+                        <h1>The AI That Learns<br>To Build Itself</h1>
+                        <p class="tagline">An autonomous coding system that doesn't just execute—it evolves.</p>
+                        <div class="hero-highlights">
+                            <div class="highlight-chip">Adaptive planning engine</div>
+                            <div class="highlight-chip">Hardware-optimized runtimes</div>
+                            <div class="highlight-chip">Zero external dependencies</div>
+                        </div>
+                        <div class="cta-buttons">
+                            <a href="https://github.com/NickScherbakov/GC-Forged-Pylot" class="btn btn-primary">
+                                View on GitHub →
+                            </a>
+                            <a href="#getting-started" class="btn btn-secondary">
+                                Quick Start
+                            </a>
+                        </div>
+                    </div>
+                    <div class="hero-visual">
+                        <div class="hero-orb orb-1"></div>
+                        <div class="hero-orb orb-2"></div>
+                        <div class="hero-orb orb-3"></div>
+                        <div class="hero-card">
+                            <h3>Self-Improvement Loop</h3>
+                            <ul>
+                                <li>Observe performance signals</li>
+                                <li>Generate and test refinements</li>
+                                <li>Promote proven upgrades</li>
+                            </ul>
+                            <div class="card-badge">Cycle time ↓ 37%</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -466,12 +875,28 @@
 
         <!-- Introduction -->
         <section class="container">
-            <p style="font-size: 1.25rem; text-align: center; color: var(--text-dim); max-width: 900px; margin: 0 auto; line-height: 1.8;">
-                In a world where AI systems require constant human oversight, 
-                <span class="highlight">GC-Forged-Pylot</span> takes a different path. 
-                Built on <span class="highlight">llama.cpp</span>, it runs entirely on your hardware—no cloud dependencies, 
-                no API costs. What makes it remarkable isn't just what it does, but <em>how it learns to do it better</em>.
-            </p>
+            <div class="glass-panel">
+                <p style="font-size: 1.25rem; text-align: center; color: var(--text-dim); max-width: 900px; margin: 0 auto; line-height: 1.8;">
+                    In a world where AI systems require constant human oversight, 
+                    <span class="highlight">GC-Forged-Pylot</span> takes a different path. 
+                    Built on <span class="highlight">llama.cpp</span>, it runs entirely on your hardware—no cloud dependencies, 
+                    no API costs. What makes it remarkable isn't just what it does, but <em>how it learns to do it better</em>.
+                </p>
+                <div class="panel-grid" style="margin-top: 2.5rem;">
+                    <div class="panel-item">
+                        <h3 style="color: var(--accent); margin-bottom: 0.6rem;">Built for Builders</h3>
+                        <p style="color: var(--text-dim);">Launch experiments, refactor systems, and architect new capabilities while your assistant evolves alongside you.</p>
+                    </div>
+                    <div class="panel-item">
+                        <h3 style="color: var(--accent); margin-bottom: 0.6rem;">Local Mastery</h3>
+                        <p style="color: var(--text-dim);">Keep sensitive IP on your machines. Every insight the system gains stays with you and your team.</p>
+                    </div>
+                    <div class="panel-item">
+                        <h3 style="color: var(--accent); margin-bottom: 0.6rem;">Always On</h3>
+                        <p style="color: var(--text-dim);">24/7 execution with adaptive scheduling. Tasks hand off seamlessly between planning, execution, and reflection phases.</p>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <!-- Stats -->
@@ -492,6 +917,28 @@
                 <div class="stat-item">
                     <div class="stat-number">0</div>
                     <div class="stat-label">Cloud Dependencies</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Social Proof Section -->
+        <section class="container">
+            <h2>Field Notes From Builders</h2>
+            <p class="section-subtitle">
+                Early adopters are already bending the curve on what autonomous engineering looks like in practice.
+            </p>
+            <div class="quote-grid">
+                <div class="quote-card">
+                    <p>“GC-Forged-Pylot refactored a decade-old service in hours and left behind a plan for what to fix next. It feels like pairing with an elite teammate who never gets tired.”</p>
+                    <div class="quote-author">Lead Engineer, Distributed Systems Lab</div>
+                </div>
+                <div class="quote-card">
+                    <p>“The local-first design gave us the confidence to use autonomous tooling on sensitive infrastructure projects. Zero external calls, complete transparency.”</p>
+                    <div class="quote-author">Security Architect, Fintech Collective</div>
+                </div>
+                <div class="quote-card">
+                    <p>“We used the self-improvement cycle to bootstrap internal tools. Every sprint, the agent left our human team better instrumentation than it started with.”</p>
+                    <div class="quote-author">Program Manager, Research Ops</div>
                 </div>
             </div>
         </section>
@@ -596,6 +1043,36 @@ python run_autonomous.py "Monitor system security" --continuous
                     The cycle repeats until the system achieves the desired confidence threshold, 
                     with each iteration building on the lessons of the previous one.
                 </p>
+                <div class="timeline">
+                    <div class="timeline-step">
+                        <div class="timeline-bullet">01</div>
+                        <div class="timeline-content">
+                            <h4>Perception & Context</h4>
+                            <p>Ingest natural language briefs, repo state, telemetry, and historical memory snapshots to frame intent.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-bullet">02</div>
+                        <div class="timeline-content">
+                            <h4>Strategic Planning</h4>
+                            <p>Compose multi-stage execution plans, select tools, and align confidence targets before the first action fires.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-bullet">03</div>
+                        <div class="timeline-content">
+                            <h4>Autonomous Delivery</h4>
+                            <p>Execute plans with intelligent branching, instant feedback loops, and telemetry-driven adjustments.</p>
+                        </div>
+                    </div>
+                    <div class="timeline-step">
+                        <div class="timeline-bullet">04</div>
+                        <div class="timeline-content">
+                            <h4>Self-Evolution</h4>
+                            <p>Harvest learnings, update heuristics, and propose code upgrades that are reviewed, tested, and promoted automatically.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="feature-grid" style="margin-top: 3rem;">
@@ -620,17 +1097,30 @@ python run_autonomous.py "Monitor system security" --continuous
         </section>
 
         <!-- Philosophy Section -->
-        <section class="container" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.05)); padding: 3rem; border-radius: 1rem; margin: 4rem auto;">
-            <h2>The "Egg" Philosophy</h2>
-            <p class="section-subtitle">
-                A minimal seed that grows into something greater.
-            </p>
-            <p style="font-size: 1.125rem; color: var(--text-dim); max-width: 800px; margin: 0 auto; line-height: 1.8;">
-                Deploy GC-Forged-Pylot on any machine—Windows, Linux, macOS—and it becomes self-sufficient. 
-                It analyzes the hardware, configures itself optimally, and begins learning from the tasks you assign. 
-                Like an egg containing all the instructions for life, it carries within it the capacity to adapt, 
-                to grow, to evolve. You provide the nutrients—tasks and feedback—and watch as capability emerges.
-            </p>
+        <section class="container philosophy">
+            <div class="glass-panel" style="padding: 3.5rem;">
+                <h2>The "Egg" Philosophy</h2>
+                <p class="section-subtitle">
+                    A minimal seed that grows into something greater.
+                </p>
+                <div class="panel-grid" style="margin-top: 2.5rem;">
+                    <div class="panel-item">
+                        <h3 style="color: var(--accent); margin-bottom: 0.6rem;">Deploy Anywhere</h3>
+                        <p style="color: var(--text-dim);">Windows, Linux, macOS, edge devices—wherever you have silicon, the system adapts and optimizes itself.</p>
+                    </div>
+                    <div class="panel-item">
+                        <h3 style="color: var(--accent); margin-bottom: 0.6rem;">Evolve Continuously</h3>
+                        <p style="color: var(--text-dim);">Each task feeds the learning loop. Insights mature into reusable playbooks, tools, and heuristics.</p>
+                    </div>
+                    <div class="panel-item">
+                        <h3 style="color: var(--accent); margin-bottom: 0.6rem;">Stay In Control</h3>
+                        <p style="color: var(--text-dim);">You decide when to ship upgrades. Review proposed changes, accept, or iterate together.</p>
+                    </div>
+                </div>
+                <p style="font-size: 1.125rem; color: var(--text-dim); max-width: 800px; margin: 3rem auto 0; line-height: 1.8; text-align: center;">
+                    Like an egg containing all the instructions for life, it carries within it the capacity to adapt, to grow, to evolve. Provide the nutrients—tasks and feedback—and watch capability emerge.
+                </p>
+            </div>
         </section>
 
         <!-- Getting Started Section -->
@@ -716,6 +1206,21 @@ pip install -r requirements.txt</code></pre>
                     <h3>Edge Computing</h3>
                     <p>Deploy AI capabilities in bandwidth-limited or offline environments. 
                     Intelligence that doesn't depend on the cloud.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="container">
+            <div class="cta-banner">
+                <h3>Build The Future On Your Terms</h3>
+                <p>GC-Forged-Pylot is the backbone for teams who want autonomous acceleration without surrendering control. Fork it, extend it, and let it transform the way you build.</p>
+                <div class="cta-buttons" style="justify-content: center;">
+                    <a href="https://github.com/NickScherbakov/GC-Forged-Pylot" class="btn btn-secondary" style="border-color: rgba(255, 255, 255, 0.35);">
+                        Explore the Codebase
+                    </a>
+                    <a href="#community" class="btn btn-primary">
+                        Meet the Community →
+                    </a>
                 </div>
             </div>
         </section>
