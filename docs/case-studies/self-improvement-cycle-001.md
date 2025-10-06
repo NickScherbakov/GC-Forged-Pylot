@@ -21,6 +21,7 @@
 - **Plan JSON**: `docs/case-studies/artifacts/001-plan.json`
 - **Diff Patch**: `docs/case-studies/artifacts/001-diff.patch`
 - **Metrics**: `docs/case-studies/artifacts/001-metrics.json`
+- **Schema**: `docs/case-studies/gallery.schema.json` (validate your submissions with this)
 
 ## Highlights
 

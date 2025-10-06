@@ -69,10 +69,10 @@ If you explore a new scenario, open a discussion or PR so we can amplify it in t
 
 We want the next hundred contributors to hit the ground running. A few initiatives you can join or kick off:
 
-- **Self-Improvement Gallery** – publish your best task cycles (plans, diffs, metrics) so others can fork and rerun them locally. Get inspired by [Case Study 001](docs/case-studies/self-improvement-cycle-001.md).
-- **Extension Marketplace** – build and share tool manifests hooked into `src/bridge/tool_manager.py` for DevOps, data, or creative workflows.
-- **Telemetry Dashboard** – prototype visualizers for planner/executor traces and share insights on performance bottlenecks.
-- **Dual-Agent Reviews** – experiment with two coordinated agents (builder + reviewer) and document the patterns that work best.
+- **Self-Improvement Gallery** – publish your best task cycles (plans, diffs, metrics) so others can fork and rerun them locally. Get inspired by [Case Study 001](docs/case-studies/self-improvement-cycle-001.md) and [Case Study 002](docs/case-studies/self-improvement-cycle-002.md); validate your artifacts with `python bin/validate_gallery.py`.
+- **Extension Marketplace** – build and share tool manifests hooked into `src/bridge/tool_manager.py` for DevOps, data, or creative workflows; start with the [Tool Manifest Specification](docs/specs/tool_manifest.md), drop JSON or YAML bundles in `config/`, and lint them with `python bin/validate_tool_manifest.py`.
+- **Telemetry Dashboard** – prototype visualizers for planner/executor traces and share insights on performance bottlenecks using the [Telemetry Event Specification](docs/specs/telemetry_events.md).
+- **Dual-Agent Reviews** – experiment with two coordinated agents (builder + reviewer) and document the patterns that work best; align with the [Dual-Agent Collaboration Protocol](docs/specs/dual_agent_protocol.md).
 - **Model Optimization Recipes** – automate GGUF conversions, benchmarking, and tuning scripts so new users can contribute quickly on their hardware.
 
 Jump into the [Discussions](https://github.com/NickScherbakov/GC-Forged-Pylot/discussions) tab or file an issue with your proposal—we are happy to collaborate and highlight community-led efforts. For a high-level view of where we are heading, check the [GC-Forged-Pylot Roadmap 2025](docs/ROADMAP_2025.md).

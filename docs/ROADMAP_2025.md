@@ -15,10 +15,11 @@ Position GC-Forged-Pylot as the go-to autonomous engineering platform for teams 
 
 | Workstream | Goals | Milestones |
 | --- | --- | --- |
-| Self-Improvement Gallery | Capture and replay high-value autonomous cycles |<ul><li>Define JSON schema for plans, diffs, metrics</li><li>Ship first curated case studies</li><li>Expose gallery via docs + landing page</li></ul>|
-| Tooling Marketplace | Standardize external tool manifests |<ul><li>Specification for tool descriptors</li><li>Reference implementations (Git, Docker, Terraform)</li><li>Automated validation command</li></ul>|
-| Telemetry & Observability | Visualize planner/executor traces |<ul><li>Emit structured telemetry events</li><li>Grafana-compatible dashboards</li><li>Trace replay script in docs</li></ul>|
-| Dual-Agent Collaboration | Introduce reviewer/checker agent |<ul><li>Design reviewer protocol</li><li>Pilot dual-agent demo task</li><li>Document best practices</li></ul>|
+| Self-Improvement Gallery | Capture and replay high-value autonomous cycles |<ul><li>Define JSON schema for plans, diffs, metrics (`docs/case-studies/gallery.schema.json`)</li><li>Ship first curated case studies</li><li>Expose gallery via docs + landing page</li><li>Provide validation CLI (`python bin/validate_gallery.py`)</li></ul>|
+| Tooling Marketplace | Standardize external tool manifests |<ul><li>Publish v1 spec (`docs/specs/tool_manifest.md`)</li><li>Reference implementations (Git, Docker, Terraform)</li><li>Automated validation command</li></ul>|
+| Tooling Marketplace | Standardize external tool manifests |<ul><li>Publish v1 JSON/YAML spec (`docs/specs/tool_manifest.md`)</li><li>Reference implementations (Git, Docker, Terraform)</li><li>Automated validation command (`python bin/validate_tool_manifest.py`)</li></ul>|
+| Telemetry & Observability | Visualize planner/executor traces |<ul><li>Emit structured telemetry events (`docs/specs/telemetry_events.md`)</li><li>Grafana-compatible dashboards</li><li>Trace replay script in docs</li></ul>|
+| Dual-Agent Collaboration | Introduce reviewer/checker agent |<ul><li>Design reviewer protocol (`docs/specs/dual_agent_protocol.md`)</li><li>Pilot dual-agent demo task</li><li>Document best practices</li></ul>|
 | Optimization Recipes | Simplify model deployment |<ul><li>Convert popular models to GGUF recipes</li><li>Benchmark harness with configurable profiles</li><li>Publish hardware leaderboard</li></ul>|
 
 ## Phase 2 – Expansion (Q1–Q2 2026)

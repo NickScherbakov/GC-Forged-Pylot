@@ -1,0 +1,19 @@
+{
+  "id": "002",
+  "confidence": [
+    { "cycle": 1, "score": 0.38, "notes": "Missing auth guards" },
+    { "cycle": 2, "score": 0.62, "notes": "Rate limiter drafted" },
+    { "cycle": 3, "score": 0.81, "notes": "Integration tests passing" },
+    { "cycle": 4, "score": 0.93, "notes": "Security headers + docs" }
+  ],
+  "duration_minutes": 54,
+  "tests_ran": [
+    "tests/core/test_server_api.py::test_rate_limit_allows_burst",
+    "tests/core/test_server_api.py::test_rate_limit_blocks_excess"
+  ],
+  "files_touched": [
+    "src/core/server.py",
+    "tests/core/test_server_api.py",
+    "docs/hardening.md"
+  ]
+}

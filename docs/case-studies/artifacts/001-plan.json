@@ -1,11 +1,20 @@
 {
   "id": "001",
   "task": "Refactor the configuration loader for clarity and add missing validation",
+  "environment": {
+    "hardware": "AMD Ryzen 7, 32 GB RAM",
+    "os": "Ubuntu 22.04"
+  },
+  "model": {
+    "name": "llama.cpp",
+    "variant": "13B GPTQ q5_K_M"
+  },
   "confidence_target": 0.92,
   "cycles": [
     {
       "cycle": 1,
-      "planner_summary": "Baseline analysis of existing loader",
+      "summary": "Baseline analysis of existing loader",
+      "confidence": 0.46,
       "actions": [
         "Scan config loader for missing validation",
         "List current dependency graph"
@@ -13,7 +22,8 @@
     },
     {
       "cycle": 2,
-      "planner_summary": "Proposed modular restructure",
+      "summary": "Proposed modular restructure",
+      "confidence": 0.78,
       "actions": [
         "Draft validation helper module",
         "Generate unit test skeletons"
@@ -21,11 +31,17 @@
     },
     {
       "cycle": 3,
-      "planner_summary": "Finalized validation layer",
+      "summary": "Finalized validation layer",
+      "confidence": 0.94,
       "actions": [
         "Integrate schema enforcement",
         "Update documentation and rerun focused tests"
       ]
     }
-  ]
+  ],
+  "artifacts": {
+    "plan": "docs/case-studies/artifacts/001-plan.json",
+    "diff": "docs/case-studies/artifacts/001-diff.patch",
+    "metrics": "docs/case-studies/artifacts/001-metrics.json"
+  }
 }

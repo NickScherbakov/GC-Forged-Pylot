@@ -4,8 +4,16 @@ This directory stores reusable data generated from autonomous improvement cycles
 
 ## Naming Conventions
 
-- `<id>-plan.json` – Planner output with structured steps, prompts, and metadata.
-- `<id>-diff.patch` – Unified diff capturing code modifications.
-- `<id>-metrics.json` – Confidence scores, timing info, and task-specific KPIs.
+ - `media/` – Optional assets (screen recordings, reports, logs) referenced by the case study.
+
+Validate new submissions against `../gallery.schema.json` to keep the gallery consistent.
+
+## Validation Helper
+
+Run the helper script before opening a PR:
+
+```bash
+python bin/validate_gallery.py
+```
 
 > Example references are provided by `self-improvement-cycle-001.md`. Replace placeholder files with actual artifacts when you run the cycle.

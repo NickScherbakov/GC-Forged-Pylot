@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nickscherbakov.github.io/GC-Forged-Pylot/schemas/gallery.json",
+  "title": "Self-Improvement Cycle Artifact",
+  "type": "object",
+  "required": ["id", "task", "environment", "model", "cycles", "artifacts"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[0-9A-Za-z_-]+$"},
+    "task": {"type": "string", "minLength": 8},
+    "environment": {
+      "type": "object",
+      "required": ["hardware", "os"],
+      "properties": {
+        "hardware": {"type": "string"},
+        "os": {"type": "string"},
+        "notes": {"type": "string"}
+      }
+    },
+    "model": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "variant": {"type": "string"},
+        "parameters": {"type": "integer", "minimum": 1}
+      }
+    },
+    "confidence_target": {"type": "number", "minimum": 0, "maximum": 1},
+    "cycles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["cycle", "summary", "confidence"],
+        "properties": {
+          "cycle": {"type": "integer", "minimum": 1},
+          "summary": {"type": "string"},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "actions": {"type": "array", "items": {"type": "string"}},
+          "duration_seconds": {"type": "number", "minimum": 0}
+        }
+      }
+    },
+    "artifacts": {
+      "type": "object",
+      "required": ["plan", "diff", "metrics"],
+      "properties": {
+        "plan": {"type": "string"},
+        "diff": {"type": "string"},
+        "metrics": {"type": "string"},
+        "logs": {"type": "string"}
+      }
+    }
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "id": "002",
+  "task": "Audit the FastAPI server for insecure endpoints and add rate limiting",
+  "environment": {
+    "hardware": "Intel i9, 64 GB RAM",
+    "os": "Ubuntu 24.04"
+  },
+  "model": {
+    "name": "llama.cpp",
+    "variant": "13B q4_K_M"
+  },
+  "confidence_target": 0.9,
+  "cycles": [
+    {
+      "cycle": 1,
+      "summary": "Catalogued public endpoints and missing safeguards",
+      "confidence": 0.38,
+      "actions": [
+        "Run endpoint discovery script",
+        "Compare against security checklist"
+      ]
+    },
+    {
+      "cycle": 2,
+      "summary": "Prototyped rate limiting middleware design",
+      "confidence": 0.62,
+      "actions": [
+        "Draft middleware skeleton",
+        "Add Redis client abstraction"
+      ]
+    },
+    {
+      "cycle": 3,
+      "summary": "Implemented token bucket limiters and tests",
+      "confidence": 0.81,
+      "actions": [
+        "Integrate middleware into FastAPI",
+        "Write integration tests"
+      ]
+    },
+    {
+      "cycle": 4,
+      "summary": "Final hardening and documentation",
+      "confidence": 0.93,
+      "actions": [
+        "Add security headers",
+        "Update docs and deployment checklist"
+      ]
+    }
+  ],
+  "artifacts": {
+    "plan": "docs/case-studies/artifacts/002-plan.json",
+    "diff": "docs/case-studies/artifacts/002-diff.patch",
+    "metrics": "docs/case-studies/artifacts/002-metrics.json"
+  }
+}
