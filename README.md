@@ -149,7 +149,30 @@ For more details on request payloads and responses, check the API models defined
 - **Auto-reload:**  
   Use the `--reload` flag when starting the server for automatic code reloading during development.
 
-## Contributing
+## 🤝 Contributing
+
+We're building something revolutionary, and we'd love your help! Whether you're a student, researcher, or seasoned developer, there's a place for you here.
+
+### 🎯 Quick Start for Contributors
+- **New to open source?** Start with [Quick Wins](docs/QUICK_WINS.md) - easy tasks that make an impact
+- **Want to contribute?** Read our [Contributing Guide](CONTRIBUTING.md) with gamified levels & achievements
+- **Looking for ideas?** Check out [Innovative Features](docs/INNOVATIVE_FEATURES.md) for inspiration
+- **Planning ahead?** See our [Roadmap](docs/ROADMAP.md) for upcoming features
+
+### 🌟 Why Contribute?
+- 🚀 Work with cutting-edge self-improving AI
+- 🏆 Build your portfolio with innovative projects
+- 🎓 Perfect for academic research and publications
+- 💡 Influence the future of autonomous AI
+- 🤝 Join a passionate community of builders
+
+### 🎮 Contributor Levels
+- 🥉 **Bronze**: First contribution merged
+- 🥈 **Silver**: 5+ PRs, active community member
+- 🥇 **Gold**: Core contributor, feature owner
+- 💎 **Diamond**: Project champion, research leader
+
+[Start your journey →](CONTRIBUTING.md)
 
 Contributions are welcome. Please submit pull requests or open issues to help improve the project.
 
@@ -157,7 +180,27 @@ Contributions are welcome. Please submit pull requests or open issues to help im
 
 This project is licensed under the [MIT License](LICENSE).
 
+## 📚 Documentation
+
+Explore our comprehensive documentation:
+
+- 📖 [Innovative Features](docs/INNOVATIVE_FEATURES.md) - Non-obvious applications that make this project unique
+- 🗺️ [Project Roadmap](docs/ROADMAP.md) - Our ambitious plan to revolutionize autonomous AI
+- 🎯 [Quick Wins](docs/QUICK_WINS.md) - Easy first contributions for new members
+- 💼 [Use Cases](docs/USE_CASES.md) - Real-world applications across industries
+- 🤝 [Contributing Guide](CONTRIBUTING.md) - How to join our community
+- 🔮 [Future Tasks](docs/FUTURE_TASKS.md) - Technical roadmap and priorities
+- 🤖 [Self-Improvement](docs/SELF_IMPROVEMENT.md) - Deep dive into our core technology
+- ⚡ [Autonomous Operation](docs/AUTONOMOUS_OPERATION.md) - 24/7 autonomous mode guide
+
+## 🌟 Community & Support
+
+- 💬 [GitHub Discussions](https://github.com/NickScherbakov/GC-Forged-Pylot/discussions) - Ask questions, share ideas
+- 🐛 [Issue Tracker](https://github.com/NickScherbakov/GC-Forged-Pylot/issues) - Report bugs, request features
+- 🎓 [Good First Issues](https://github.com/NickScherbakov/GC-Forged-Pylot/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) - Perfect for newcomers
+- ⭐ Star us on GitHub - Show your support!
+
 ## Acknowledgments
 
 - Inspired by [llama.cpp](https://github.com/ggerganov/llama.cpp) and GitHub Copilot.
-- Built by the GC-Forged-Pylot Team.
+- Built by the GC-Forged-Pylot Team and our amazing contributors.
