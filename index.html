@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="GC-Forged-Pylot: An autonomous 24/7 coding system powered by local LLMs with self-improvement capabilities">
+    <meta name="keywords" content="autonomous AI, local LLM, self-improvement, llama.cpp, GitHub Copilot, autonomous coding">
+    <title>GC-Forged-Pylot - Autonomous AI That Evolves</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #7c3aed;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --accent: #06b6d4;
+            --success: #10b981;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Header */
+        header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(37, 99, 235, 0.1) 0%, transparent 70%);
+            animation: pulse 15s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .tagline {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid rgba(148, 163, 184, 0.2);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            background: rgba(37, 99, 235, 0.1);
+        }
+
+        /* Sections */
+        section {
+            padding: 4rem 0;
+        }
+
+        h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-dim);
+            font-size: 1.125rem;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: var(--surface);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.2);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--accent);
+        }
+
+        .feature-card p {
+            color: var(--text-dim);
+            line-height: 1.7;
+        }
+
+        /* Code Block */
+        .code-demo {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 3rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .code-demo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        pre {
+            overflow-x: auto;
+            padding: 1rem 0;
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--text);
+        }
+
+        .code-comment {
+            color: var(--success);
+        }
+
+        /* Stats Section */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .stat-item {
+            padding: 1.5rem;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin: 3rem 0;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .architecture-flow {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin: 2rem 0;
+        }
+
+        .arch-node {
+            background: rgba(37, 99, 235, 0.1);
+            border: 2px solid var(--primary);
+            border-radius: 0.5rem;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .arch-arrow {
+            color: var(--accent);
+            font-size: 2rem;
+        }
+
+        /* Community Section */
+        .community-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .community-card {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(124, 58, 237, 0.1));
+            padding: 1.5rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(148, 163, 184, 0.1);
+            text-align: center;
+        }
+
+        .community-card h4 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--surface);
+            padding: 3rem 0;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .footer-section h4 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-dim);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(148, 163, 184, 0.1);
+            color: var(--text-dim);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.25rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        /* Subtle highlighting */
+        .highlight {
+            color: var(--accent);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">GC-Forged-Pylot</div>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#architecture">Architecture</a></li>
+                <li><a href="#getting-started">Get Started</a></li>
+                <li><a href="#community">Community</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content fade-in">
+                    <h1>The AI That Learns<br>To Build Itself</h1>
+                    <p class="tagline">An autonomous coding system that doesn't just execute—it evolves.</p>
+                    <div class="cta-buttons">
+                        <a href="https://github.com/NickScherbakov/GC-Forged-Pylot" class="btn btn-primary">
+                            View on GitHub →
+                        </a>
+                        <a href="#getting-started" class="btn btn-secondary">
+                            Quick Start
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Introduction -->
+        <section class="container">
+            <p style="font-size: 1.25rem; text-align: center; color: var(--text-dim); max-width: 900px; margin: 0 auto; line-height: 1.8;">
+                In a world where AI systems require constant human oversight, 
+                <span class="highlight">GC-Forged-Pylot</span> takes a different path. 
+                Built on <span class="highlight">llama.cpp</span>, it runs entirely on your hardware—no cloud dependencies, 
+                no API costs. What makes it remarkable isn't just what it does, but <em>how it learns to do it better</em>.
+            </p>
+        </section>
+
+        <!-- Stats -->
+        <section class="container">
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">Local Execution</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">24/7</div>
+                    <div class="stat-label">Autonomous Operation</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">∞</div>
+                    <div class="stat-label">Self-Improvement Cycles</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">0</div>
+                    <div class="stat-label">Cloud Dependencies</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="container">
+            <h2>Beyond Conventional AI</h2>
+            <p class="section-subtitle">
+                Most AI systems are static. They're trained once, deployed, and remain unchanged. 
+                GC-Forged-Pylot breaks this paradigm.
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🧬</div>
+                    <h3>Self-Improvement</h3>
+                    <p>The system analyzes its own performance, identifies gaps in its capabilities, 
+                    and generates new code modules to address them. Each task makes it more capable than before.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Hardware Optimization</h3>
+                    <p>Automatically detects your CPU, GPU, and memory configuration, then optimizes 
+                    compilation flags and runtime parameters. From laptops to workstations, it adapts.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Privacy First</h3>
+                    <p>Your code, your data, your hardware. No external API calls, no telemetry, 
+                    no cloud dependencies. Complete sovereignty over your AI assistant.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Autonomous Operation</h3>
+                    <p>Provide a task description, set a confidence threshold, and let it work. 
+                    The system plans, executes, evaluates, and iterates until the job is done right.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Continuous Learning</h3>
+                    <p>Each interaction enriches the system's memory. It learns from successes, 
+                    failures, and user feedback, building a knowledge base that compounds over time.</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🛠️</div>
+                    <h3>OpenAI-Compatible API</h3>
+                    <p>Drop-in replacement for OpenAI's API. Existing tools and workflows work seamlessly, 
+                    but now everything runs on your terms, on your infrastructure.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Code Demo Section -->
+        <section class="container">
+            <h2>Elegantly Simple</h2>
+            <p class="section-subtitle">
+                Complexity hidden behind simplicity. One command to start, endless possibilities to explore.
+            </p>
+            
+            <div class="code-demo">
+                <pre><code><span class="code-comment"># Launch the autonomous system</span>
+python run_autonomous.py "Create a REST API with authentication"
+
+<span class="code-comment"># With custom parameters</span>
+python run_autonomous.py "Optimize database queries" \
+    --cycles 5 \
+    --threshold 0.95 \
+    --notify email
+
+<span class="code-comment"># Continuous self-improvement mode</span>
+python run_autonomous.py "Monitor system security" --continuous
+</code></pre>
+            </div>
+        </section>
+
+        <!-- Architecture Section -->
+        <section id="architecture" class="container">
+            <h2>Intelligent Architecture</h2>
+            <p class="section-subtitle">
+                A modular design where each component contributes to the whole, creating emergent capabilities 
+                greater than the sum of parts.
+            </p>
+            
+            <div class="architecture">
+                <div class="architecture-flow">
+                    <div class="arch-node">Task Analysis</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-node">Planning</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-node">Execution</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-node">Evaluation</div>
+                    <span class="arch-arrow">→</span>
+                    <div class="arch-node">Self-Improvement</div>
+                </div>
+                <p style="text-align: center; color: var(--text-dim); margin-top: 2rem;">
+                    The cycle repeats until the system achieves the desired confidence threshold, 
+                    with each iteration building on the lessons of the previous one.
+                </p>
+            </div>
+
+            <div class="feature-grid" style="margin-top: 3rem;">
+                <div class="feature-card">
+                    <h3>Core Components</h3>
+                    <p>LLM Interface, Memory System, Execution Engine, Reasoning Module, Planning System—all 
+                    working in concert to transform intent into reality.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Bridge Layer</h3>
+                    <p>Connects to external systems, processes feedback, manages notifications. 
+                    The system's gateway to the broader world.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Self-Improvement Engine</h3>
+                    <p>The meta-layer that observes, learns, and modifies the system itself. 
+                    Code that writes code, improving its own foundation.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Philosophy Section -->
+        <section class="container" style="background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(124, 58, 237, 0.05)); padding: 3rem; border-radius: 1rem; margin: 4rem auto;">
+            <h2>The "Egg" Philosophy</h2>
+            <p class="section-subtitle">
+                A minimal seed that grows into something greater.
+            </p>
+            <p style="font-size: 1.125rem; color: var(--text-dim); max-width: 800px; margin: 0 auto; line-height: 1.8;">
+                Deploy GC-Forged-Pylot on any machine—Windows, Linux, macOS—and it becomes self-sufficient. 
+                It analyzes the hardware, configures itself optimally, and begins learning from the tasks you assign. 
+                Like an egg containing all the instructions for life, it carries within it the capacity to adapt, 
+                to grow, to evolve. You provide the nutrients—tasks and feedback—and watch as capability emerges.
+            </p>
+        </section>
+
+        <!-- Getting Started Section -->
+        <section id="getting-started" class="container">
+            <h2>Begin Your Journey</h2>
+            <p class="section-subtitle">
+                Three steps from curiosity to capability.
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>1. Clone & Install</h3>
+                    <div class="code-demo" style="margin-top: 1rem; padding: 1rem;">
+                        <pre><code>git clone https://github.com/NickScherbakov/GC-Forged-Pylot.git
+cd GC-Forged-Pylot
+pip install -r requirements.txt</code></pre>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <h3>2. Optimize Hardware</h3>
+                    <div class="code-demo" style="margin-top: 1rem; padding: 1rem;">
+                        <pre><code>python optimize_llama.py \
+    --benchmark \
+    --model ./models/your-model.gguf</code></pre>
+                    </div>
+                </div>
+
+                <div class="feature-card">
+                    <h3>3. Launch & Evolve</h3>
+                    <div class="code-demo" style="margin-top: 1rem; padding: 1rem;">
+                        <pre><code>python run_autonomous.py \
+    "Your task description"</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <p style="text-align: center; margin-top: 2rem; color: var(--text-dim);">
+                For detailed documentation, visit the 
+                <a href="https://github.com/NickScherbakov/GC-Forged-Pylot/tree/main/docs" style="color: var(--accent);">docs folder</a>.
+            </p>
+        </section>
+
+        <!-- Use Cases Section -->
+        <section class="container">
+            <h2>What's Possible?</h2>
+            <p class="section-subtitle">
+                The limitations aren't in the system—they're in what we imagine asking it to do.
+            </p>
+            
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Development Automation</h3>
+                    <p>Generate APIs, refactor codebases, write tests, optimize performance. 
+                    Let the system handle the repetitive while you focus on the creative.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Research Assistant</h3>
+                    <p>Analyze data, generate reports, synthesize information. 
+                    A tireless collaborator that gets smarter with each project.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>System Administration</h3>
+                    <p>Monitor logs, detect anomalies, automate maintenance tasks. 
+                    24/7 vigilance without the burnout.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Learning Platform</h3>
+                    <p>Study AI systems from the inside. Modify the code, watch it adapt, 
+                    understand how self-improvement works at a fundamental level.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Privacy-Critical Applications</h3>
+                    <p>Medical research, legal analysis, proprietary development—anything 
+                    where data sovereignty is non-negotiable.</p>
+                </div>
+
+                <div class="feature-card">
+                    <h3>Edge Computing</h3>
+                    <p>Deploy AI capabilities in bandwidth-limited or offline environments. 
+                    Intelligence that doesn't depend on the cloud.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Section -->
+        <section id="community" class="container">
+            <h2>Join the Evolution</h2>
+            <p class="section-subtitle">
+                Great systems aren't built in isolation. They emerge from communities of curious minds.
+            </p>
+            
+            <div class="community-grid">
+                <div class="community-card">
+                    <h4>🌟 Star on GitHub</h4>
+                    <p>Show your interest and stay updated with developments</p>
+                </div>
+
+                <div class="community-card">
+                    <h4>🐛 Report Issues</h4>
+                    <p>Found something that could work better? Share your discoveries</p>
+                </div>
+
+                <div class="community-card">
+                    <h4>💡 Propose Features</h4>
+                    <p>Have ideas for capabilities the system should develop? Let's discuss</p>
+                </div>
+
+                <div class="community-card">
+                    <h4>🔧 Contribute Code</h4>
+                    <p>Submit PRs. The system can self-improve, but it learns faster with help</p>
+                </div>
+
+                <div class="community-card">
+                    <h4>📖 Improve Docs</h4>
+                    <p>Help others understand what you've figured out</p>
+                </div>
+
+                <div class="community-card">
+                    <h4>🎓 Share Knowledge</h4>
+                    <p>Blog posts, tutorials, use cases—spread what you've learned</p>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: rgba(37, 99, 235, 0.05); border-radius: 1rem;">
+                <p style="font-size: 1.25rem; color: var(--text); margin-bottom: 1rem;">
+                    The question isn't whether AI will become more autonomous.
+                </p>
+                <p style="font-size: 1.25rem; color: var(--text); margin-bottom: 2rem;">
+                    The question is: <span class="highlight">Will you be part of shaping how?</span>
+                </p>
+                <a href="https://github.com/NickScherbakov/GC-Forged-Pylot" class="btn btn-primary" style="font-size: 1.125rem; padding: 1rem 2.5rem;">
+                    Start Contributing
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>GC-Forged-Pylot</h4>
+                    <p style="color: var(--text-dim);">
+                        An autonomous 24/7 coding system built on llama.cpp with self-improvement capabilities.
+                    </p>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot">GitHub Repository</a></li>
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot/tree/main/docs">Documentation</a></li>
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot/issues">Issue Tracker</a></li>
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot/blob/main/LICENSE">License (MIT)</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Technology</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/ggerganov/llama.cpp">llama.cpp</a></li>
+                        <li><a href="https://fastapi.tiangolo.com/">FastAPI</a></li>
+                        <li><a href="https://www.python.org/">Python</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-section">
+                    <h4>Community</h4>
+                    <ul class="footer-links">
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot/pulls">Pull Requests</a></li>
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot/discussions">Discussions</a></li>
+                        <li><a href="https://github.com/NickScherbakov/GC-Forged-Pylot/blob/main/CONTRIBUTING.md">Contributing Guide</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2025 GC-Forged-Pylot Team. Licensed under MIT License.</p>
+                <p style="margin-top: 0.5rem;">Built with passion for autonomous systems and open source.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
