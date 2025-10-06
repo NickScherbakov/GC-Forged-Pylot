@@ -54,6 +54,29 @@ python run_autonomous.py "Your task description" --cycles 5 --threshold 0.9
 python run_autonomous.py "Your task description" --continuous
 ```
 
+## Emerging Applications
+
+Beyond the core server, GC-Forged-Pylot is already proving useful in several less-obvious domains:
+
+- **Autonomous SecOps Sentry** – ingest on-prem log streams, surface anomalies, and ship remediation patches without leaking telemetry to the cloud.
+- **Edge & Robotics Operator** – pair hardware-aware optimization with Jetson/ARM builds to keep fleets of offline devices updated and self-healing.
+- **Private LLM R&D Lab** – spin up isolated sandboxes to benchmark prompts, models, and runtime tweaks while the memory system curates experiment history.
+- **Academic Autonomy Studio** – let learners launch guided self-improvement cycles, inspect planner/executor traces, and defend their findings with reproducible logs.
+
+If you explore a new scenario, open a discussion or PR so we can amplify it in the docs.
+
+## Community Onboarding & Growth
+
+We want the next hundred contributors to hit the ground running. A few initiatives you can join or kick off:
+
+- **Self-Improvement Gallery** – publish your best task cycles (plans, diffs, metrics) so others can fork and rerun them locally. Get inspired by [Case Study 001](docs/case-studies/self-improvement-cycle-001.md).
+- **Extension Marketplace** – build and share tool manifests hooked into `src/bridge/tool_manager.py` for DevOps, data, or creative workflows.
+- **Telemetry Dashboard** – prototype visualizers for planner/executor traces and share insights on performance bottlenecks.
+- **Dual-Agent Reviews** – experiment with two coordinated agents (builder + reviewer) and document the patterns that work best.
+- **Model Optimization Recipes** – automate GGUF conversions, benchmarking, and tuning scripts so new users can contribute quickly on their hardware.
+
+Jump into the [Discussions](https://github.com/NickScherbakov/GC-Forged-Pylot/discussions) tab or file an issue with your proposal—we are happy to collaborate and highlight community-led efforts. For a high-level view of where we are heading, check the [GC-Forged-Pylot Roadmap 2025](docs/ROADMAP_2025.md).
+
 ## Project Structure
 
 ```

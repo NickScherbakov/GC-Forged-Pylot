@@ -1,0 +1,18 @@
+--- a/src/core/config_loader.py
++++ b/src/core/config_loader.py
+@@
+-# TODO: add validation
++# Introduce schema-based validation for incoming config data
++def _validate_config(payload: Dict[str, Any]) -> ConfigModel:
++    try:
++        return ConfigModel(**payload)
++    except ValidationError as exc:
++        raise ConfigValidationError("Invalid configuration payload") from exc
+ 
+ def load_config(path: str) -> Dict[str, Any]:
+-    with open(path, "r", encoding="utf-8") as handle:
+-        return json.load(handle)
++    with open(path, "r", encoding="utf-8") as handle:
++        raw_config = json.load(handle)
++    validated = _validate_config(raw_config)
++    return validated.dict()
