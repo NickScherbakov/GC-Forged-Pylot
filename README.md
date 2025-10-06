@@ -1,5 +1,7 @@
 # GC-Forged-Pylot
 
+> **[Visit our landing page](https://nickscherbakov.github.io/GC-Forged-Pylot/)** for a visual introduction to the project.
+
 **GC-Forged-Pylot** is an autonomous 24/7 coding system built on [llama.cpp](https://github.com/ggerganov/llama.cpp) with integrated GitHub Copilot functionality. It runs a local LLM server that provides an OpenAI-compatible API, supports chat and text completion endpoints, and allows for real-time streaming via WebSockets.
 
 ## Features
