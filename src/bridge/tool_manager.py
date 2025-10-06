@@ -14,9 +14,16 @@ GC-Forged Pylot - Менеджер инструментов
 
 import os
 import sys
+import json
 import importlib
 import logging
+from pathlib import Path
 from typing import Dict, List, Any, Optional, Union, Callable
+
+try:
+    import yaml  # type: ignore
+except ImportError:  # pragma: no cover - PyYAML optional
+    yaml = None
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +31,7 @@ logger = logging.getLogger(__name__)
 class Tool:
     """Базовый класс для инструмента."""
     
-    def __init__(self, name: str, description: str, config: Dict[str, Any] = None):
+    def __init__(self, name: str, description: str, config: Optional[Dict[str, Any]] = None):
         """
         Инициализирует инструмент.
         
@@ -91,7 +98,7 @@ class ToolManager:
     необходимым для выполнения различных задач.
     """
     
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Инициализирует менеджер инструментов.
         
@@ -99,10 +106,15 @@ class ToolManager:
             config: Конфигурация менеджера инструментов
         """
         self.config = config or {}
-        self.tools = {}  # Словарь доступных инструментов
+        self.tools: Dict[str, Tool] = {}  # Словарь доступных инструментов
         self.tool_configs = self.config.get("available_tools", [])  # Конфигурации инструментов
+        self.manifest_paths = self._resolve_manifest_paths(self.config.get("manifest_paths", []))
         
         logger.info("Менеджер инструментов инициализирован")
+        self._load_manifests()
+
+        for tool_cfg in self.tool_configs:
+            self.register_tool(tool_cfg)
     
     def register_tool(self, tool_config: Dict[str, Any]) -> bool:
         """
@@ -120,15 +132,17 @@ class ToolManager:
             return False
         
         tool_description = tool_config.get("description", "")
-        tool_path = tool_config.get("path", "")
+        tool_path = tool_config.get("path")
+        module_path = tool_config.get("module")
+        module_path = module_path or tool_path or ""
         
-        if not tool_path:
-            logger.error(f"Не указан путь к модулю инструмента '{tool_name}'")
+        if not module_path:
+            logger.error(f"Не указан путь/модуль инструмента '{tool_name}'")
             return False
         
         try:
             # Загружаем модуль инструмента
-            module_path = os.path.normpath(tool_path)
+            module_path = os.path.normpath(module_path)
             if module_path.endswith(".py"):
                 module_path = module_path[:-3]  # Удаляем расширение .py
             
@@ -183,6 +197,72 @@ class ToolManager:
             # Создаем заглушку
             self.tools[tool_name] = DummyTool(tool_name, tool_description, str(e))
             return False
+
+    def _resolve_manifest_paths(self, manifest_entries: Union[str, List[str]]) -> List[Path]:
+        """Формирует список путей к manifest-файлам."""
+        if not manifest_entries:
+            manifest_entries = ["config/tool_manifest.json"]
+        elif isinstance(manifest_entries, str):
+            manifest_entries = [manifest_entries]
+
+        resolved_paths: List[Path] = []
+        base_dir = Path.cwd()
+
+        root_dir = Path(__file__).resolve().parents[2]
+        if str(root_dir) not in sys.path:  # pragma: no cover - environment setup
+            sys.path.append(str(root_dir))
+
+        for entry in manifest_entries:
+            path = Path(entry)
+            if not path.is_absolute():
+                path = base_dir / path
+            if path.exists():
+                resolved_paths.append(path)
+            else:
+                logger.warning(f"Файл манифеста инструментов не найден: {path}")
+        return resolved_paths
+
+    def _load_manifests(self) -> None:
+        """Загружает инструменты из указанных манифестов."""
+        for manifest_path in self.manifest_paths:
+            manifest_data = self._parse_manifest(manifest_path)
+            if not manifest_data:
+                continue
+
+            tools = manifest_data.get("tools", [])
+            if not tools:
+                logger.info(f"Манифест {manifest_path} не содержит инструментов")
+                continue
+
+            for tool_entry in tools:
+                merged_config = dict(tool_entry)
+                merged_config.setdefault("config", {})
+                self.register_tool(merged_config)
+
+    def _parse_manifest(self, manifest_path: Path) -> Optional[Dict[str, Any]]:
+        """Читает манифест инструментов (JSON/YAML)."""
+        try:
+            content = manifest_path.read_text(encoding="utf-8")
+            suffix = manifest_path.suffix.lower()
+
+            if suffix in {".yaml", ".yml"}:
+                if not yaml:
+                    logger.error(f"PyYAML не установлен, пропускаем манифест {manifest_path}")
+                    return None
+                data = yaml.safe_load(content)  # type: ignore
+            else:
+                data = json.loads(content)
+
+            schema_version = data.get("schema_version")
+            if schema_version not in {"1.0", None}:
+                logger.warning(f"Неизвестная версия схемы манифеста {schema_version} в {manifest_path}")
+
+            manifest_name = data.get("metadata", {}).get("name", manifest_path.stem)
+            logger.info(f"Загружаем манифест инструментов '{manifest_name}' из {manifest_path}")
+            return data
+        except Exception as exc:
+            logger.error(f"Не удалось прочитать манифест инструментов {manifest_path}: {exc}")
+            return None
     
     def get_tool(self, tool_name: str) -> Optional[Tool]:
         """

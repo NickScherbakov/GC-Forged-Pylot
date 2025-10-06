@@ -1,0 +1,11 @@
+{
+  "id": "001",
+  "confidence": [
+    { "cycle": 1, "score": 0.46, "notes": "Validation missing" },
+    { "cycle": 2, "score": 0.78, "notes": "Validator drafted, tests pending" },
+    { "cycle": 3, "score": 0.94, "notes": "All checks green" }
+  ],
+  "duration_minutes": 38,
+  "tests_ran": ["tests/core/test_config_loader.py::test_required_fields", "tests/core/test_config_loader.py::test_default_overrides"],
+  "files_touched": ["src/core/config_loader.py", "tests/core/test_config_loader.py", "docs/config_loader.md"]
+}

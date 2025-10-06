@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "metadata": {
+    "name": "default",
+    "description": "Starter tool bundle for GC-Forged-Pylot",
+    "maintainers": ["GC-Forged-Pylot Team"],
+    "tags": ["core", "example"]
+  },
+  "tools": [
+    {
+      "name": "git_status",
+      "description": "Summarize the current git repository status",
+      "module": "src.bridge.tools.git_status",
+      "class_name": "GitStatusTool",
+      "permissions": ["read_repo"],
+      "inputs": {
+        "path": {
+          "type": "string",
+          "required": false,
+          "default": "."
+        },
+        "short": {
+          "type": "boolean",
+          "required": false,
+          "default": true
+        }
+      },
+      "outputs": {
+        "clean": {"type": "boolean"},
+        "summary": {"type": "string"}
+      },
+      "runtime": {
+        "timeout_seconds": 10
+      },
+      "notes": "Example tool that shells out to git status."
+    }
+  ]
+}

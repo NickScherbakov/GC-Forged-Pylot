@@ -12,17 +12,43 @@ GC-Forged Pylot - Инструменты для работы с кодом
 Лицензия: MIT
 """
 
-from .code_parser import CodeParser
-from .code_refactor import CodeRefactor
-from .semantic_search import SemanticSearch
-from .test_generator import TestGenerator
-from .documentation_generator import DocumentationGenerator
+from typing import List
 
-# Экспорт публичных интерфейсов
-__all__ = [
-    'CodeParser',
-    'CodeRefactor',
-    'SemanticSearch',
-    'TestGenerator',
-    'DocumentationGenerator'
-]
+from .code_parser import CodeParser  # noqa: F401
+
+__all__: List[str] = ["CodeParser"]
+
+try:  # pragma: no cover - опциональные инструменты
+    from .code_refactor import CodeRefactor  # type: ignore # noqa: F401
+
+    __all__.append("CodeRefactor")
+except ImportError:
+    pass
+
+try:  # pragma: no cover - опциональные инструменты
+    from .semantic_search import SemanticSearch  # type: ignore # noqa: F401
+
+    __all__.append("SemanticSearch")
+except ImportError:
+    pass
+
+try:  # pragma: no cover - опциональные инструменты
+    from .test_generator import TestGenerator  # type: ignore # noqa: F401
+
+    __all__.append("TestGenerator")
+except ImportError:
+    pass
+
+try:  # pragma: no cover - опциональные инструменты
+    from .documentation_generator import DocumentationGenerator  # type: ignore # noqa: F401
+
+    __all__.append("DocumentationGenerator")
+except ImportError:
+    pass
+
+try:  # pragma: no cover - опциональные инструменты
+    from .git_status import GitStatusTool  # noqa: F401
+
+    __all__.append("GitStatusTool")
+except ImportError:
+    pass

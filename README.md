@@ -1,5 +1,7 @@
 # GC-Forged-Pylot
 
+> **[Visit our landing page](https://nickscherbakov.github.io/GC-Forged-Pylot/)** for a visual introduction to the project.
+
 **GC-Forged-Pylot** is an autonomous 24/7 coding system built on [llama.cpp](https://github.com/ggerganov/llama.cpp) with integrated GitHub Copilot functionality. It runs a local LLM server that provides an OpenAI-compatible API, supports chat and text completion endpoints, and allows for real-time streaming via WebSockets.
 
 ## Features
@@ -51,6 +53,29 @@ python run_autonomous.py "Your task description" --cycles 5 --threshold 0.9
 # Run in continuous self-improvement mode
 python run_autonomous.py "Your task description" --continuous
 ```
+
+## Emerging Applications
+
+Beyond the core server, GC-Forged-Pylot is already proving useful in several less-obvious domains:
+
+- **Autonomous SecOps Sentry** – ingest on-prem log streams, surface anomalies, and ship remediation patches without leaking telemetry to the cloud.
+- **Edge & Robotics Operator** – pair hardware-aware optimization with Jetson/ARM builds to keep fleets of offline devices updated and self-healing.
+- **Private LLM R&D Lab** – spin up isolated sandboxes to benchmark prompts, models, and runtime tweaks while the memory system curates experiment history.
+- **Academic Autonomy Studio** – let learners launch guided self-improvement cycles, inspect planner/executor traces, and defend their findings with reproducible logs.
+
+If you explore a new scenario, open a discussion or PR so we can amplify it in the docs.
+
+## Community Onboarding & Growth
+
+We want the next hundred contributors to hit the ground running. A few initiatives you can join or kick off:
+
+- **Self-Improvement Gallery** – publish your best task cycles (plans, diffs, metrics) so others can fork and rerun them locally. Get inspired by [Case Study 001](docs/case-studies/self-improvement-cycle-001.md) and [Case Study 002](docs/case-studies/self-improvement-cycle-002.md); validate your artifacts with `python bin/validate_gallery.py`.
+- **Extension Marketplace** – build and share tool manifests hooked into `src/bridge/tool_manager.py` for DevOps, data, or creative workflows; start with the [Tool Manifest Specification](docs/specs/tool_manifest.md), drop JSON or YAML bundles in `config/`, and lint them with `python bin/validate_tool_manifest.py`.
+- **Telemetry Dashboard** – prototype visualizers for planner/executor traces and share insights on performance bottlenecks using the [Telemetry Event Specification](docs/specs/telemetry_events.md).
+- **Dual-Agent Reviews** – experiment with two coordinated agents (builder + reviewer) and document the patterns that work best; align with the [Dual-Agent Collaboration Protocol](docs/specs/dual_agent_protocol.md).
+- **Model Optimization Recipes** – automate GGUF conversions, benchmarking, and tuning scripts so new users can contribute quickly on their hardware.
+
+Jump into the [Discussions](https://github.com/NickScherbakov/GC-Forged-Pylot/discussions) tab or file an issue with your proposal—we are happy to collaborate and highlight community-led efforts. For a high-level view of where we are heading, check the [GC-Forged-Pylot Roadmap 2025](docs/ROADMAP_2025.md).
 
 ## Project Structure
 
