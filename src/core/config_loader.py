@@ -97,7 +97,7 @@ def save_config(config: Dict[str, Any], config_path: Union[str, Path]) -> bool:
         return False
 
 if __name__ == "__main__":
-    # Пример использования
+    # Пример use
     default_config = {
         "server": {
             "host": "localhost",

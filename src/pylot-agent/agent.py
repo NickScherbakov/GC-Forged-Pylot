@@ -69,7 +69,7 @@ class PylotAgent:
         logger.info("Инициализация агента Pylot...")
         self.config = self._load_config(config_path)
         
-        # Инициализация LLM в зависимости от типа
+        # Инициализация LLM depending on типа
         llm_config = self.config.get("llm", {})
         llm_type = llm_config.get("type", "llama_cpp")
         

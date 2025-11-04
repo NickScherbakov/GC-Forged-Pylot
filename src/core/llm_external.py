@@ -577,7 +577,7 @@ EXAMPLE_CONFIG = {
 
 
 if __name__ == "__main__":
-    # Пример использования
+    # Пример use
     llm = ExternalLLMAdapter(EXAMPLE_CONFIG)
     
     if llm.connected:

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 class Executor:
     """
-    Класс для execution планов действий.
+    Класс для execution action plans.
     
     Выполняет шаги плана, управляет результатами и обрабатывает ошибки.
     """

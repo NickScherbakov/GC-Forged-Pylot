@@ -32,10 +32,10 @@ logger = logging.getLogger(__name__)
 
 class LLamaLLM(LLMInterface):
     """
-    Класс для interaction с языковыми моделями через llama.cpp.
+    Class for interacting with language models via llama.cpp.
     
-    Реализует интерфейс LLMInterface для работы с локальными моделями
-    через Python-биндинги llama.cpp.
+    Implements LLMInterface for working with local models
+    via Python bindings for llama.cpp.
     """
     
     def __init__(self, config: Dict[str, Any] = None):

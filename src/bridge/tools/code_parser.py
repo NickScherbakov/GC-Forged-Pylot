@@ -182,7 +182,7 @@ class CodeParser(Tool):
                 "language": language
             }
         
-        # Execute анализ в зависимости от языка и доступных парсеров
+        # Execute анализ depending on языка и доступных парсеров
         try:
             if language == "python":
                 if self.tree_sitter_available and "python" in self.parsers and not isinstance(self.parsers["python"], str):
@@ -563,7 +563,7 @@ class CodeParser(Tool):
         return structure
 
 
-# Пример использования
+# Пример use
 if __name__ == "__main__":
     # Create экземпляр парсера
     parser = CodeParser()

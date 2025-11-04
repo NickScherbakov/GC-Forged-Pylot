@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 class ModelCache:
     """
-    Кэш для результатов генерации LLM для повторного использования.
+    Кэш для результатов генерации LLM для повторного use.
     """
     def __init__(self, max_size: int = 100, ttl: int = 3600):
         """

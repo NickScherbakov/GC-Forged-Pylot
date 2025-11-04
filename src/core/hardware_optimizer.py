@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class CompilationFlags:
-    """Флаги компиляции для llama.cpp."""
+    """Compilation flags for llama.cpp."""
     cmake_flags: List[str] = field(default_factory=list)
     make_flags: List[str] = field(default_factory=list)
     cpu_arch_flags: List[str] = field(default_factory=list)
@@ -45,7 +45,7 @@ class CompilationFlags:
 
 @dataclass
 class RuntimeParameters:
-    """Параметры запуска llama.cpp сервера."""
+    """Launch parameters for llama.cpp server."""
     n_threads: int = 4
     n_gpu_layers: int = 0
     batch_size: int = 512
@@ -59,7 +59,7 @@ class RuntimeParameters:
 
 @dataclass
 class BenchmarkResult:
-    """Результаты бенчмарка."""
+    """Benchmark results."""
     tokens_per_second: float = 0.0
     latency_ms: float = 0.0
     memory_used_mb: int = 0
@@ -589,7 +589,7 @@ class HardwareOptimizer:
         # Базовые флаги CMake
         flags.cmake_flags = ["-DCMAKE_BUILD_TYPE=Release"]
         
-        # Флаги в зависимости от процессора
+        # Флаги depending on процессора
         if flags.use_avx512:
             flags.cpu_arch_flags.extend(["-march=skylake-avx512", "-mavx512f", "-mavx512dq", "-mavx512bw", "-mavx512vl"])
         elif flags.use_avx2:

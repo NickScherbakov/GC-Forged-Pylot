@@ -49,18 +49,18 @@ class SelfImprovement:
         self.improvement_history = []
         self.confidence_threshold = 0.85  # Confidence threshold for successful execution
         
-        # Load configuration самосовершенствования, если существует
+        # Load self-improvement configuration if it exists
         self._load_config()
 
     def _load_config(self) -> None:
-        """Загружает конфигурацию самосовершенствования."""
+        """Loads self-improvement configuration."""
         config_path = os.path.join("config", "self_improvement_config.json")
         if os.path.exists(config_path):
             try:
                 with open(config_path, 'r') as f:
                     config = json.load(f)
                 self.confidence_threshold = config.get("confidence_threshold", 0.85)
-                # Другие параметры configuration можно добавить здесь
+                # Other configuration parameters can be added here
                 logger.info(f"Loaded self-improvement configuration from {config_path}")
             except Exception as e:
                 logger.error(f"Error loading self-improvement configuration: {e}")
@@ -69,7 +69,7 @@ class SelfImprovement:
             self._save_config()
     
     def _save_config(self) -> None:
-        """Сохраняет конфигурацию самосовершенствования."""
+        """Сохраняет конфигурацию self-improvement."""
         config_path = os.path.join("config", "self_improvement_config.json")
         config = {
             "confidence_threshold": self.confidence_threshold,
@@ -306,7 +306,7 @@ class SelfImprovement:
                                      max_improvement_cycles: int = 3,
                                      notify_on_completion: bool = True) -> Dict[str, Any]:
         """
-        Выполняет задание с циклом самосовершенствования до достижения 
+        Выполняет задание с циклом self-improvement до достижения 
         удовлетворительного результата или максимального числа итераций.
         
         Args:
@@ -319,7 +319,7 @@ class SelfImprovement:
         """
         logger.info(f"Starting task execution with self-improvement: {task_description[:100]}...")
         
-        # Run цикл execution и самосовершенствования
+        # Run цикл execution и self-improvement
         current_cycle = 0
         best_result = None
         best_confidence = 0.0
@@ -389,7 +389,7 @@ class SelfImprovement:
                 # Add план улучшения в историю
                 cycle_info["improvement_plan"] = feedback_analysis.get("improvement_plan", [])
         
-        # Update счетчик циклов самосовершенствования
+        # Update счетчик циклов self-improvement
         self.improvement_cycle_count += current_cycle
         self.improvement_history.extend(improvement_history)
         self._save_config()
@@ -419,7 +419,7 @@ class SelfImprovement:
                                      feedback_poll_interval: int = 3600,
                                      max_autonomous_cycles: int = 10) -> None:
         """
-        Запускает непрерывный цикл самосовершенствования, который выполняет задания 
+        Запускает непрерывный цикл self-improvement, который выполняет задания 
         и периодически проверяет обратную связь от пользователя.
         
         Args:
