@@ -24,7 +24,7 @@ import backoff
 from typing import Dict, List, Any, Optional, Union, Callable, Generator, AsyncGenerator
 from urllib.parse import urljoin
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -35,7 +35,7 @@ logger = logging.getLogger("ExternalLLMProxy")
 
 class ExternalLLMProxy:
     """
-    Прокси для взаимодействия с внешними API языковых моделей.
+    Прокси для interaction с внешними API language models.
     
     Позволяет подключаться к внешним API, таким как Ollama, llama.cpp или другие
     совместимые с OpenAI API сервисы.

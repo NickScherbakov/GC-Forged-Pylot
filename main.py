@@ -94,7 +94,7 @@ def main():
             # Pass other necessary parameters from config to LlamaServer constructor
         )
         
-        # Явно загружаем модель перед получением FastAPI app
+        # Explicitly load model before getting FastAPI app
         logger.info("Loading the LLM model...")
         if not llama_server._load_model():
             logger.error("Failed to load the model. Exiting.")

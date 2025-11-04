@@ -21,7 +21,7 @@ from typing import Dict, List, Any, Optional, Union, Tuple
 import tempfile
 import subprocess
 
-# Импортируем основные зависимости
+# Import core dependencies
 try:
     import tree_sitter
 except ImportError:
@@ -34,7 +34,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("CodeParser")
 
-# Базовый класс инструмента
+# Base class инструмента
 class Tool:
     """
     Базовый класс для всех инструментов.
@@ -54,7 +54,7 @@ class Tool:
 
 class CodeParser(Tool):
     """
-    Инструмент для синтаксического анализа кода.
+    Инструмент для syntax analysis кода.
     """
     
     def __init__(self):
@@ -73,7 +73,7 @@ class CodeParser(Tool):
         self.parsers = {}
         self.languages = {}
         
-        # Загружаем парсеры, если tree-sitter доступен
+        # Load парсеры, если tree-sitter доступен
         if self.tree_sitter_available:
             self._initialize_tree_sitter()
         else:
@@ -102,11 +102,11 @@ class CodeParser(Tool):
                 "tree-sitter-languages"
             )
             
-            # Проверяем, существует ли директория
+            # Check, существует ли директория
             if not os.path.exists(languages_dir):
                 os.makedirs(languages_dir, exist_ok=True)
             
-            # Загружаем доступные языковые грамматики
+            # Load доступные языковые грамматики
             language_configs = {
                 "python": "tree-sitter-python",
                 "javascript": "tree-sitter-javascript",
@@ -122,7 +122,7 @@ class CodeParser(Tool):
             
             for lang_name, repo_name in language_configs.items():
                 try:
-                    # Проверяем, загружена ли уже эта грамматика
+                    # Check, загружена ли уже эта грамматика
                     language_lib_path = os.path.join(languages_dir, f"{lang_name}.so")
                     
                     if not os.path.exists(language_lib_path):
@@ -131,7 +131,7 @@ class CodeParser(Tool):
                         logger.warning(f"Грамматика для языка {lang_name} не найдена в {language_lib_path}")
                         continue
                     
-                    # Загружаем языковую грамматику
+                    # Load языковую грамматику
                     language = tree_sitter.Language(language_lib_path)
                     parser = tree_sitter.Parser()
                     parser.set_language(language)
@@ -174,7 +174,7 @@ class CodeParser(Tool):
         # Нормализуем название языка
         language = language.lower()
         
-        # Проверяем, поддерживается ли язык
+        # Check, поддерживается ли язык
         if language not in self.parsers and language not in ["python"]:
             return {
                 "success": False,
@@ -182,7 +182,7 @@ class CodeParser(Tool):
                 "language": language
             }
         
-        # Выполняем анализ в зависимости от языка и доступных парсеров
+        # Execute анализ в зависимости от языка и доступных парсеров
         try:
             if language == "python":
                 if self.tree_sitter_available and "python" in self.parsers and not isinstance(self.parsers["python"], str):
@@ -198,7 +198,7 @@ class CodeParser(Tool):
                     "language": language
                 }
         except Exception as e:
-            logger.error(f"Ошибка при выполнении синтаксического анализа: {str(e)}")
+            logger.error(f"Ошибка при выполнении syntax analysis: {str(e)}")
             return {
                 "success": False,
                 "error": f"Ошибка анализа: {str(e)}",
@@ -260,7 +260,7 @@ class CodeParser(Tool):
             # Преобразуем дерево в структуру, которую можно сериализовать в JSON
             result = self._tree_to_dict(tree.root_node)
             
-            # Добавляем базовую информацию
+            # Add базовую информацию
             structure = self._extract_structure(result, language)
             
             return {
@@ -440,7 +440,7 @@ class CodeParser(Tool):
                     "class_variables": []
                 }
                 
-                # Добавляем базовые классы, если есть
+                # Add базовые классы, если есть
                 if node.bases:
                     class_info["bases"] = []
                     for base in node.bases:
@@ -565,7 +565,7 @@ class CodeParser(Tool):
 
 # Пример использования
 if __name__ == "__main__":
-    # Создаем экземпляр парсера
+    # Create экземпляр парсера
     parser = CodeParser()
     
     # Пример кода для парсинга

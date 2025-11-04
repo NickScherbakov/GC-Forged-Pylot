@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 class LLamaLLM(LLMInterface):
     """
-    Класс для взаимодействия с языковыми моделями через llama.cpp.
+    Класс для interaction с языковыми моделями через llama.cpp.
     
     Реализует интерфейс LLMInterface для работы с локальными моделями
     через Python-биндинги llama.cpp.
@@ -65,7 +65,7 @@ class LLamaLLM(LLMInterface):
             logger.warning("LLamaLLM - llama-cpp-python не установлен. Работаем в режиме заглушек.")
             return
         
-        # Загружаем модель если путь указан
+        # Load модель если путь указан
         if self.model_path and os.path.exists(self.model_path):
             self._initialize_model()
         else:
@@ -96,7 +96,7 @@ class LLamaLLM(LLMInterface):
                     os.environ["GGML_OPENCL_PLATFORM"] = "AMD"
                     os.environ["GGML_OPENCL_DEVICE"] = str(self.config.get("gpu_device", 0))
                     
-            # Параметры для эффективного управления памятью
+            # Параметры для эффективного management памятью
             use_mlock = self.config.get("use_mlock", True)
             use_mmap = self.config.get("use_mmap", True)
             
@@ -299,7 +299,7 @@ class LLamaLLM(LLMInterface):
             else:
                 result.append(f"<|{role}|>\n{content}\n")
         
-        # Добавляем маркер для ответа ассистента
+        # Add маркер для ответа ассистента
         result.append("<|assistant|>\n")
         
         return "".join(result)

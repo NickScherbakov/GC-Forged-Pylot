@@ -23,32 +23,32 @@ logger = logging.getLogger(__name__)
 
 class FeedbackHandler:
     """
-    Класс для обработки обратной связи от пользователя.
+    Класс для processing feedback от пользователя.
     
     Собирает информацию о взаимодействии пользователя с системой,
     сохраняет историю взаимодействий и предоставляет интерфейс
-    для улучшения работы системы на основе обратной связи.
+    для улучшения работы системы на основе feedback.
     """
     
     def __init__(self, config: Dict[str, Any] = None):
         """
-        Инициализирует обработчик обратной связи.
+        Инициализирует обработчик feedback.
         
         Args:
-            config: Конфигурация обработчика обратной связи
+            config: Конфигурация обработчика feedback
         """
         self.config = config or {}
         self.interactions = []  # История взаимодействий
         self.log_path = self.config.get("log_path", "logs/feedback.log")
         self.save_interactions = self.config.get("save_interactions", True)
         
-        # Создаем директорию для логов, если не существует
+        # Create директорию для логов, если не существует
         if self.save_interactions:
             log_dir = os.path.dirname(self.log_path)
             if log_dir and not os.path.exists(log_dir):
                 os.makedirs(log_dir, exist_ok=True)
         
-        logger.info("Обработчик обратной связи инициализирован")
+        logger.info("Обработчик feedback инициализирован")
     
     def log_interaction(self, user_input: str, assistant_output: str, plan: Any = None, execution_results: Dict[str, Any] = None) -> None:
         """
@@ -58,18 +58,18 @@ class FeedbackHandler:
             user_input: Запрос пользователя
             assistant_output: Ответ ассистента
             plan: План действий (опционально)
-            execution_results: Результаты выполнения плана (опционально)
+            execution_results: Результаты execution плана (опционально)
         """
         timestamp = datetime.utcnow().isoformat()
         
-        # Создаем запись взаимодействия
+        # Create запись interaction
         interaction = {
             "timestamp": timestamp,
             "user_input": user_input,
             "assistant_output": assistant_output
         }
         
-        # Добавляем информацию о плане, если доступна
+        # Add информацию о плане, если доступна
         if plan:
             interaction["plan"] = {
                 "goal": getattr(plan, "goal", ""),
@@ -77,7 +77,7 @@ class FeedbackHandler:
                 "current_step": getattr(plan, "current_step", 0)
             }
         
-        # Добавляем информацию о результатах выполнения, если доступна
+        # Add информацию о результатах execution, если доступна
         if execution_results:
             interaction["execution"] = {
                 "success": execution_results.get("success", False),
@@ -98,7 +98,7 @@ class FeedbackHandler:
         Записывает взаимодействие в лог.
         
         Args:
-            interaction: Данные взаимодействия
+            interaction: Данные interaction
         """
         try:
             with open(self.log_path, "a", encoding="utf-8") as f:
@@ -108,17 +108,17 @@ class FeedbackHandler:
     
     def add_feedback(self, interaction_id: str, rating: int, comment: str = "") -> bool:
         """
-        Добавляет обратную связь для конкретного взаимодействия.
+        Добавляет обратную связь для конкретного interaction.
         
         Args:
-            interaction_id: Идентификатор взаимодействия
+            interaction_id: Идентификатор interaction
             rating: Оценка (от 1 до 5)
             comment: Комментарий пользователя
             
         Returns:
             bool: True, если обратная связь успешно добавлена, иначе False
         """
-        # Проверяем корректность оценки
+        # Check корректность оценки
         if not isinstance(rating, int) or rating < 1 or rating > 5:
             logger.error(f"Некорректная оценка: {rating}")
             return False
@@ -126,7 +126,7 @@ class FeedbackHandler:
         # Ищем взаимодействие по ID
         for interaction in self.interactions:
             if interaction.get("id") == interaction_id:
-                # Добавляем обратную связь
+                # Add обратную связь
                 interaction["feedback"] = {
                     "rating": rating,
                     "comment": comment,
@@ -144,10 +144,10 @@ class FeedbackHandler:
     
     def get_feedback_statistics(self) -> Dict[str, Any]:
         """
-        Возвращает статистику по обратной связи.
+        Возвращает статистику по feedback.
         
         Returns:
-            Dict[str, Any]: Статистика по обратной связи
+            Dict[str, Any]: Статистика по feedback
         """
         total_interactions = len(self.interactions)
         feedback_count = sum(1 for i in self.interactions if "feedback" in i)

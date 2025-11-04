@@ -24,16 +24,16 @@ class Memory:
     """
     Класс для работы с памятью агента.
     
-    Обеспечивает хранение истории взаимодействия и извлечение
-    релевантного контекста для обработки запросов.
+    Обеспечивает хранение истории interaction и извлечение
+    релевантного контекста для processing запросов.
     """
     
     def __init__(self, config: Dict[str, Any] = None):
         """
-        Инициализирует систему памяти.
+        Инициализирует систему memory.
         
         Args:
-            config: Конфигурация системы памяти
+            config: Конфигурация системы memory
         """
         self.config = config or {}
         self.history = []
@@ -41,10 +41,10 @@ class Memory:
         self.history_size = self.config.get("history_size", 10)
         self.initialized = False
         
-        logger.info("Система памяти инициализирована")
+        logger.info("Система memory инициализирована")
     
     def initialize(self) -> None:
-        """Инициализирует систему памяти и загружает историю, если доступно."""
+        """Инициализирует систему memory и загружает историю, если доступно."""
         try:
             if os.path.exists(self.history_path):
                 with open(self.history_path, "r", encoding="utf-8") as f:
@@ -92,13 +92,13 @@ class Memory:
         return self.history
     
     def clear(self) -> None:
-        """Очищает историю взаимодействия."""
+        """Очищает историю interaction."""
         self.history = []
         logger.info("История очищена")
     
     def save(self) -> bool:
         """
-        Сохраняет историю взаимодействия в файл.
+        Сохраняет историю interaction в файл.
         
         Returns:
             bool: True, если сохранение успешно, иначе False

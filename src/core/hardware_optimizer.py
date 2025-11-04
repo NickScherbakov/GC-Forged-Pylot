@@ -132,17 +132,17 @@ class HardwareOptimizer:
     def _is_profile_outdated(self) -> bool:
         """Проверяет, устарел ли профиль."""
         # Базовая проверка - профиль считается устаревшим, если:
-        # 1. Изменилось количество доступной памяти (RAM/VRAM)
+        # 1. Изменилось количество доступной memory (RAM/VRAM)
         # 2. Изменилась модель CPU/GPU
         # 3. Профилю больше месяца
         
         current_hw = HardwareProfile()
-        self.config.detect_hardware()  # Используем существующую функцию для обновления current_hw
+        self.config.detect_hardware()  # Use существующую функцию для обновления current_hw
         current_hw = self.config.hardware_profile
         
         profile_hw = self.optimization_profile.hardware
         
-        # Проверяем базовые характеристики
+        # Check базовые характеристики
         if (abs(current_hw.total_ram - profile_hw.total_ram) > 1024 or  # Разница более 1 ГБ
             current_hw.cpu_model != profile_hw.cpu_model or
             current_hw.gpu_model != profile_hw.gpu_model or
@@ -150,7 +150,7 @@ class HardwareOptimizer:
             current_hw.has_rocm != profile_hw.has_rocm):
             return True
         
-        # Проверяем дату обновления
+        # Check дату обновления
         try:
             last_updated = time.strptime(self.optimization_profile.updated_at, "%Y-%m-%d %H:%M:%S")
             days_since_update = (time.time() - time.mktime(last_updated)) / (60 * 60 * 24)
@@ -610,7 +610,7 @@ class HardwareOptimizer:
         # Флаги для GPU
         if hardware.has_nvidia_gpu and hardware.has_cuda:
             flags.cmake_flags.append("-DLLAMA_CUDA=ON")
-            # Если VRAM меньше 6ГБ, включаем режим экономии памяти
+            # Если VRAM меньше 6ГБ, включаем режим экономии memory
             if hardware.gpu_vram < 6000:
                 flags.cmake_flags.append("-DLLAMA_CUDA_DMMV_X=32")
                 flags.cmake_flags.append("-DLLAMA_CUDA_MMV_Y=32")
@@ -666,7 +666,7 @@ class HardwareOptimizer:
         else:
             params.n_gpu_layers = 0
         
-        # Оптимальный размер батча зависит от доступной памяти
+        # Оптимальный размер батча зависит от доступной memory
         # Базовое эмпирическое правило: ~1MB на токен в батче для 7B модели
         if hardware.total_ram > 32000:  # >32 ГБ RAM
             params.batch_size = 1024
@@ -677,8 +677,8 @@ class HardwareOptimizer:
         else:
             params.batch_size = 128
         
-        # Размер контекста зависит от доступной памяти
-        # Для 7B модели: ~2MB памяти на 1K токенов контекста
+        # Размер контекста зависит от доступной memory
+        # Для 7B модели: ~2MB memory на 1K токенов контекста
         if hardware.total_ram > 32000:  # >32 ГБ RAM
             params.context_size = 8192
         elif hardware.total_ram > 16000:  # >16 ГБ RAM
@@ -717,13 +717,13 @@ class HardwareOptimizer:
         
         params = self.optimization_profile.runtime_parameters
         
-        # Проверяем, что у нас есть llama-server
+        # Check, что у нас есть llama-server
         server_path = self._get_llama_server_path()
         if not server_path:
             logger.error("llama-server executable not found")
             return BenchmarkResult(prompt=prompt)
         
-        # Запускаем сервер с текущими параметрами
+        # Run сервер с текущими параметрами
         server_cmd = [
             server_path,
             "--model", model_path,
@@ -744,7 +744,7 @@ class HardwareOptimizer:
         }
         
         try:
-            # Запускаем сервер в фоновом режиме
+            # Run сервер в фоновом режиме
             logger.info(f"Starting benchmark with command: {' '.join(server_cmd)}")
             server_process = subprocess.Popen(
                 server_cmd,
@@ -767,7 +767,7 @@ class HardwareOptimizer:
             tokens_per_second_list = []
             latency_list = []
             
-            # Выполняем несколько итераций
+            # Execute несколько итераций
             for i in range(iterations):
                 start_time = time.time()
                 try:
@@ -816,7 +816,7 @@ class HardwareOptimizer:
             # Получаем использованную память
             result.memory_used_mb = self._measure_memory_usage()
             
-            # Добавляем результат в профиль
+            # Add результат в профиль
             self.optimization_profile.benchmark_results.append(result)
             self._save_profile()
             
@@ -853,7 +853,7 @@ class HardwareOptimizer:
         logger.info(f"Запуск имитации бенчмарка для модели: {model_path}")
         logger.info(f"Параметры: threads={params.n_threads}, n_ctx={params.n_ctx}, batch={params.batch_size}, gpu_layers={params.n_gpu_layers}")
         
-        # Измеряем текущее использование памяти
+        # Измеряем текущее использование memory
         memory_used = self._measure_memory_usage()
         
         # Искусственно рассчитываем скорость генерации на основе характеристик оборудования
@@ -880,12 +880,12 @@ class HardwareOptimizer:
         # Расчет латентности
         latency_ms = 100 / cpu_factor  # базовая латентность 100ms, уменьшается с ростом CPU
         
-        # Добавляем немного случайности для реалистичности
+        # Add немного случайности для реалистичности
         import random
         tokens_per_second *= (0.9 + random.random() * 0.2)  # ±10%
         latency_ms *= (0.9 + random.random() * 0.2)  # ±10%
         
-        # Создаем результат
+        # Create результат
         result = BenchmarkResult(
             tokens_per_second=tokens_per_second,
             latency_ms=latency_ms,
@@ -900,7 +900,7 @@ class HardwareOptimizer:
             }
         )
         
-        # Добавляем результат в профиль
+        # Add результат в профиль
         self.optimization_profile.benchmark_results.append(result)
         self._save_profile()
         
@@ -926,7 +926,7 @@ class HardwareOptimizer:
         return None
     
     def _measure_memory_usage(self) -> int:
-        """Измеряет текущее использование памяти."""
+        """Измеряет текущее использование memory."""
         try:
             process = psutil.Process(os.getpid())
             memory_info = process.memory_info()
@@ -954,7 +954,7 @@ class HardwareOptimizer:
         # Оптимизируем флаги компиляции
         flags = self.optimize_compilation_flags()
         
-        # Создаем директорию для сборки
+        # Create директорию для сборки
         build_dir = os.path.join(llama_cpp_path, "build")
         os.makedirs(build_dir, exist_ok=True)
         
@@ -962,7 +962,7 @@ class HardwareOptimizer:
         cmake_cmd = ["cmake"] + flags.cmake_flags
         cmake_cmd.append("..")
         
-        # Запускаем CMake
+        # Run CMake
         logger.info(f"Running CMake with flags: {' '.join(cmake_cmd)}")
         try:
             subprocess.run(cmake_cmd, cwd=build_dir, check=True)
@@ -970,7 +970,7 @@ class HardwareOptimizer:
             logger.error(f"CMake failed: {e}")
             return False
         
-        # Запускаем сборку
+        # Run сборку
         make_cmd = ["make"] + flags.make_flags + ["server"]
         logger.info(f"Building with command: {' '.join(make_cmd)}")
         try:

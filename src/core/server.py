@@ -99,7 +99,7 @@ class ModelCache:
             value: Значение для кэширования
         """
         with self.lock:
-            # Проверяем размер кэша
+            # Check размер кэша
             if len(self.cache) >= self.max_size:
                 # Удаляем самую старую запись
                 oldest_key = min(self.cache.items(), key=lambda x: x[1][1])[0]
@@ -186,20 +186,20 @@ class LlamaServer:
     def _load_model(self):
         """Load the language model using llama-cpp-python."""
         try:
-            # Ограничиваем использование памяти для модели на основе доступной системной памяти
+            # Ограничиваем использование memory для модели на основе доступной системной memory
             import psutil
             avail_memory = psutil.virtual_memory().available / (1024 * 1024 * 1024)  # GB
             logger.info(f"Available system memory: {avail_memory:.2f} GB")
             
-            # Определяем конфигурацию для модели на основе доступной памяти
+            # Определяем конфигурацию для модели на основе доступной memory
             model_config = self.config.copy()
             
-            # Определяем тип квантизации на основе доступной памяти и настроек пользователя
+            # Определяем тип квантизации на основе доступной memory и настроек пользователя
             if avail_memory < 8 and not model_config.get("quantization_type"):
                 logger.info("Low memory detected, using 4-bit quantization")
                 model_config["quantization_type"] = "q4_0"
             
-            # Создаем экземпляр LLamaLLM
+            # Create экземпляр LLamaLLM
             self._llm_instance = LLamaLLM({
                 "model_path": self.model_path,
                 "n_ctx": model_config.get("context_size", 4096),
@@ -225,7 +225,7 @@ class LlamaServer:
     def _configure_routes(self):
         # Определяем модели для API если доступен FastAPI
         if FASTAPI_AVAILABLE:
-            # Создаем модели данных
+            # Create модели данных
             class CompletionRequest(BaseModel):
                 prompt: str
                 max_tokens: int = Field(default=256)
@@ -297,7 +297,7 @@ class LlamaServer:
                 if not self._llm_instance:
                     raise HTTPException(status_code=503, detail="Model not loaded")
                     
-                # Проверяем кэш, если не потоковый запрос
+                # Check кэш, если не потоковый запрос
                 if not request.stream:
                     cache_key = self._cache.get_key(
                         request.prompt,
@@ -321,7 +321,7 @@ class LlamaServer:
                         media_type="text/event-stream"
                     )
                     
-                # Выполняем генерацию
+                # Execute генерацию
                 try:
                     llm_response = self._llm_instance.generate(
                         request.prompt,
@@ -372,7 +372,7 @@ class LlamaServer:
                 # Преобразуем запрос в формат, понятный модели
                 messages = [{"role": msg.role, "content": msg.content} for msg in request.messages]
                 
-                # Проверяем кэш, если не потоковый запрос
+                # Check кэш, если не потоковый запрос
                 if not request.stream:
                     cache_key = self._cache.get_key(
                         json.dumps(messages),
@@ -396,7 +396,7 @@ class LlamaServer:
                         media_type="text/event-stream"
                     )
                     
-                # Выполняем генерацию
+                # Execute генерацию
                 try:
                     llm_response = self._llm_instance.chat(
                         messages,
@@ -450,12 +450,12 @@ class LlamaServer:
                     while True:
                         data = await websocket.receive_json()
                         
-                        # Проверяем тип запроса
+                        # Check тип запроса
                         if data.get("type") == "completion":
-                            # Создаем задачу для выполнения генерации
+                            # Create задачу для execution генерации
                             asyncio.create_task(self._handle_ws_completion(websocket, data))
                         elif data.get("type") == "chat":
-                            # Создаем задачу для выполнения чата
+                            # Create задачу для execution чата
                             asyncio.create_task(self._handle_ws_chat(websocket, data))
                         else:
                             await websocket.send_json({"error": "Unknown request type"})
@@ -551,7 +551,7 @@ class LlamaServer:
             @self.app.post("/v1/config")
             async def update_config(config: Dict[str, Any]):
                 """Update server configuration."""
-                # Обновляем конфигурацию
+                # Update конфигурацию
                 for key, value in config.items():
                     self.config[key] = value
                     
@@ -619,7 +619,7 @@ class LlamaServer:
     def _server_loop(self, host, port):
         """Main server loop."""
         try:
-            # Запускаем uvicorn с настроенным приложением FastAPI
+            # Run uvicorn с настроенным приложением FastAPI
             uvicorn.run(
                 self.app,
                 host=host,
@@ -682,7 +682,7 @@ class LlamaServer:
         logger.debug(f"Generating with prompt: {prompt[:50]}...")
         
         try:
-            # Проверяем кэш, если не потоковая генерация
+            # Check кэш, если не потоковая генерация
             if not stream:
                 cache_key = self._cache.get_key(
                     prompt,

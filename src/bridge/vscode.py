@@ -26,7 +26,7 @@ import socket
 import uuid
 from datetime import datetime
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -254,7 +254,7 @@ class CompletionProvider:
                 # Определяем тип элемента (функция, переменная и т.д.)
                 item_kind = self._determine_item_kind(option)
                 
-                # Создаем элемент дополнения
+                # Create элемент дополнения
                 completion_items.append({
                     "label": option[:40] + ("..." if len(option) > 40 else ""),
                     "kind": item_kind,
@@ -288,7 +288,7 @@ class CompletionProvider:
             str: Текст автодополнения
         """
         try:
-            # Выполняем запрос к языковой модели
+            # Execute запрос к языковой модели
             response = await self.llm_client.generate_async(
                 prompt=prompt,
                 max_tokens=256,
@@ -414,7 +414,7 @@ class VSCodeLanguageServer:
             return self.port
         
         try:
-            # Запускаем WebSocket сервер
+            # Run WebSocket сервер
             self.server = await websockets.serve(
                 self.handle_client,
                 self.host,
@@ -430,7 +430,7 @@ class VSCodeLanguageServer:
             self.is_running = True
             logger.info(f"VS Code Language Server запущен на {self.host}:{self.port}")
             
-            # Запускаем сообщение о доступности сервера
+            # Run сообщение о доступности сервера
             self._announce_server()
             
             return self.port
@@ -444,7 +444,7 @@ class VSCodeLanguageServer:
         Создает файл объявления сервера для VS Code.
         """
         try:
-            # Создаем временный файл с информацией о сервере
+            # Create временный файл с информацией о сервере
             announcement_file = os.path.join(
                 os.path.expanduser("~"),
                 ".gc-forged-pylot",
@@ -541,7 +541,7 @@ class VSCodeLanguageServer:
         Returns:
             Optional[Dict[str, Any]]: Ответное сообщение LSP, если требуется
         """
-        # Проверяем, это запрос, уведомление или ответ
+        # Check, это запрос, уведомление или ответ
         if "method" in message:
             # Это запрос или уведомление
             method = message.get("method", "")
@@ -570,7 +570,7 @@ class VSCodeLanguageServer:
                 if id is not None:
                     return LspMessage.create_error(id, -32601, f"Метод не найден: {method}")
         else:
-            # Это ответ, не требует обработки
+            # Это ответ, не требует processing
             pass
             
         return None
@@ -723,7 +723,7 @@ class VSCodeLanguageServer:
         Returns:
             Dict[str, Any]: Список элементов автодополнения
         """
-        # Добавляем информацию о документе из нашего кэша
+        # Add информацию о документе из нашего кэша
         document_uri = params.get("textDocument", {}).get("uri")
         
         if document_uri in self.documents:
@@ -783,7 +783,7 @@ class VSCodeLanguageServer:
 
 class VSCodeExtensionConnector:
     """
-    Коннектор для взаимодействия с VS Code расширением.
+    Коннектор для interaction с VS Code расширением.
     """
     
     def __init__(self, config: Dict[str, Any] = None):
@@ -810,7 +810,7 @@ class VSCodeExtensionConnector:
         """
         self.llm_client = llm_client
         
-        # Создаем языковой сервер
+        # Create языковой сервер
         server_config = self.config.get("language_server", {})
         self.language_server = VSCodeLanguageServer(llm_client, server_config)
         
@@ -843,7 +843,7 @@ class VSCodeExtensionConnector:
             logger.warning("Языковой сервер уже запущен")
             return self.server_port
         
-        # Создаем и запускаем новый поток для сервера
+        # Create и запускаем новый поток для сервера
         loop = asyncio.new_event_loop()
         
         def run_server():
@@ -916,10 +916,10 @@ if __name__ == "__main__":
             return Response("print('Hello, world!')||| def calculate_sum(a, b):\n    return a + b ||| for i in range(10):")
     
     async def main():
-        # Создаем фиктивный LLM клиент
+        # Create фиктивный LLM клиент
         llm_client = DummyLLMClient()
         
-        # Создаем и запускаем языковой сервер
+        # Create и запускаем языковой сервер
         server = VSCodeLanguageServer(llm_client)
         port = await server.start_server()
         
@@ -931,7 +931,7 @@ if __name__ == "__main__":
         # Останавливаем сервер
         await server.stop_server()
     
-    # Запускаем асинхронный код
+    # Run асинхронный код
     try:
         asyncio.run(main())
     except KeyboardInterrupt:

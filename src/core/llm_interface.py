@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class LLMResponse:
-    """Результат выполнения запроса к языковой модели."""
+    """Результат execution запроса к языковой модели."""
     text: str
     metadata: Dict[str, Any] = None
 
 
 class LLMInterface:
     """
-    Базовый интерфейс для языковых моделей.
+    Базовый интерфейс для language models.
     
-    Этот класс определяет общий интерфейс для всех языковых моделей,
+    Этот класс определяет общий интерфейс для всех language models,
     используемых в системе GC-Forged Pylot.
     """
     
@@ -119,7 +119,7 @@ class LLMInterface:
     
     def get_max_context_length(self) -> int:
         """
-        Возвращает максимальную длину контекста для модели.
+        Returns максимальную длину контекста для модели.
         
         Returns:
             int: Максимальная длина контекста в токенах

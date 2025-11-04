@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 class APIConnector:
     """
-    Класс для взаимодействия с внешними API.
+    Класс для interaction с внешними API.
     
     Управляет соединениями с различными API, обрабатывает запросы
     и ответы, а также обеспечивает обработку ошибок.
@@ -66,7 +66,7 @@ class APIConnector:
         auth_type = api_config.get("auth_type", "")
         auth_token = api_config.get("auth_token", "")
         
-        # Создаем настройки для соединения
+        # Create настройки для соединения
         connection_config = {
             "url": url,
             "auth_required": auth_required,
@@ -78,11 +78,11 @@ class APIConnector:
             }
         }
         
-        # Добавляем авторизацию, если требуется
+        # Add авторизацию, если требуется
         if auth_required and auth_type == "token" and auth_token:
             connection_config["headers"]["Authorization"] = f"Bearer {auth_token}"
         
-        # Проверяем соединение
+        # Check соединение
         try:
             response = requests.get(url, headers=connection_config["headers"], timeout=5)
             if response.status_code >= 400:
@@ -143,7 +143,7 @@ class APIConnector:
             Dict[str, Any]: Результат запроса
             
         Raises:
-            Exception: При ошибке выполнения запроса
+            Exception: При ошибке execution запроса
         """
         if api_name not in self.connections:
             raise Exception(f"Соединение с API '{api_name}' не установлено")
@@ -178,13 +178,13 @@ class APIConnector:
                 "headers": dict(response.headers)
             }
             
-            # Добавляем данные ответа, если есть
+            # Add данные ответа, если есть
             try:
                 result["data"] = response.json()
             except ValueError:
                 result["text"] = response.text
             
-            # Проверяем код состояния
+            # Check код состояния
             if response.status_code >= 400:
                 logger.error(f"Ошибка при запросе к {url}: код {response.status_code}")
                 result["success"] = False
