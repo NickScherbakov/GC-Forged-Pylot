@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Прокси для внешних API
+GC-Forged Pylot - Proxy for External APIs
 ========================================
 
-Модуль для взаимодействия с внешними API языковых моделей.
+Module for interacting with external language model APIs.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

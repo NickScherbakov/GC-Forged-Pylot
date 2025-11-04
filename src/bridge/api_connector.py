@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Коннектор API
+GC-Forged Pylot - API Connector
 ============================
 
-Модуль для взаимодействия с внешними API.
+Module for interacting with external APIs.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

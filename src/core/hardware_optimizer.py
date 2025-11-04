@@ -1,6 +1,6 @@
 """
-Hardware Optimizer для GC-Forged-Pylot.
-Анализирует аппаратное обеспечение и оптимизирует параметры llama.cpp.
+Hardware Optimizer for GC-Forged-Pylot.
+Analyzes hardware and optimizes llama.cpp parameters.
 """
 import os
 import json

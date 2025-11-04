@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Интерфейс для llama.cpp
+GC-Forged Pylot - Interface for llama.cpp
 ======================================
 
-Модуль для взаимодействия с языковыми моделями через llama.cpp.
+Module for interacting with language models through llama.cpp.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

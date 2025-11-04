@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Инструменты для работы с кодом
+GC-Forged Pylot - Code Tools
 ====================================
 
-Пакет инструментов для анализа, рефакторинга и генерации кода.
+Tools package for code analysis, refactoring, and generation.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 from typing import List

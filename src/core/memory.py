@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система памяти
+GC-Forged Pylot - Memory System
 =============================
 
-Модуль для хранения и извлечения контекстной информации.
+Module for storing and retrieving contextual information.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

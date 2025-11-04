@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система выполнения
+GC-Forged Pylot - Execution System
 =================================
 
-Модуль для выполнения планов действий.
+Module for executing action plans.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging

@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Загрузчик конфигурации
+GC-Forged Pylot - Configuration Loader
 ========================================
 
-Модуль для загрузки конфигурационных файлов в различных форматах.
+Module for loading configuration files in various formats.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

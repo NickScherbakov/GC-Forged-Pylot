@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система планирования
+GC-Forged Pylot - Planning System
 ===================================
 
-Модуль для создания планов действий на основе анализа запросов.
+Module for creating action plans based on request analysis.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging

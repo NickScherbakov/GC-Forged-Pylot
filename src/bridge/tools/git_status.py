@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-"""Простой инструмент для получения статуса репозитория Git."""
+"""Simple tool for getting Git repository status."""
 
 from __future__ import annotations
 
@@ -12,7 +12,7 @@ from ..tool_manager import Tool
 
 
 class GitStatusTool(Tool):
-    """Возвращает агрегированный статус git-репозитория."""
+    """Returns aggregated git repository status."""
 
     def __init__(self, name: str = "git_status", description: str = "Показывает статус git", config: Dict[str, Any] | None = None):
         super().__init__(name=name, description=description, config=config)

@@ -5,13 +5,13 @@
 GC-Forged Pylot Tasks
 =====================
 
-Модуль для определения и управления задачами агента GC-Forged Pylot.
-Обеспечивает структуру для создания, отслеживания и выполнения сложных задач,
-а также их декомпозицию на подзадачи.
+Module for defining and managing GC-Forged Pylot agent tasks.
+Provides structure for creating, tracking, and executing complex tasks,
+as well as their decomposition into subtasks.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

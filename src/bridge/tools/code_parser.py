@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Инструмент синтаксического анализа кода
+GC-Forged Pylot - Code Syntax Analysis Tool
 =======================================================
 
-Инструмент для анализа кода на различных языках программирования.
-Поддерживает парсинг исходного кода и построение AST.
+Tool for analyzing code in various programming languages.
+Supports source code parsing and AST construction.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

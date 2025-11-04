@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Адаптер для внешних LLM API
+GC-Forged Pylot - Adapter for External LLM APIs
 ============================================
 
-Модуль для интеграции внешних API языковых моделей (например, Ollama, llama.cpp)
-с основным кодом проекта.
+Module for integrating external language model APIs (e.g., Ollama, llama.cpp)
+with the main project code.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

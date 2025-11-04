@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-Скрипт проверки и оптимизации системы для запуска llama.cpp.
-Выполняется при первом запуске или при обнаружении изменений в оборудовании.
+Script to check and optimize system for running llama.cpp.
+Executed on first launch or when hardware changes are detected.
 """
 import os
 import sys
@@ -9,13 +9,13 @@ import logging
 import argparse
 from pathlib import Path
 
-# Добавляем проект в путь импорта
+# Add project to import path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.hardware_optimizer import HardwareOptimizer
 from src.core.config import load_config
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

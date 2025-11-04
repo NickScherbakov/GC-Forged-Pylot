@@ -10,7 +10,7 @@ from src.core.reasoning import Reasoning
 from src.core.planner import Planner
 from src.bridge.feedback_handler import FeedbackHandler
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -47,7 +47,7 @@ class SelfImprovement:
         self.feedback_handler = feedback_handler
         self.improvement_cycle_count = 0
         self.improvement_history = []
-        self.confidence_threshold = 0.85  # Порог уверенности для успешного выполнения
+        self.confidence_threshold = 0.85  # Confidence threshold for successful execution
         
         # Загружаем конфигурацию самосовершенствования, если существует
         self._load_config()

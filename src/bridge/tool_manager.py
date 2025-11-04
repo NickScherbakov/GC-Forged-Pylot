@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Менеджер инструментов
+GC-Forged Pylot - Tool Manager
 ====================================
 
-Модуль для управления инструментами, доступными агенту.
+Module for managing tools available to the agent.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

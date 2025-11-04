@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Скрипт для оптимизации llama.cpp под конкретное оборудование.
-Анализирует аппаратное обеспечение, компилирует оптимизированную версию сервера
-и создает профиль оптимальных параметров запуска.
+Script to optimize llama.cpp for specific hardware.
+Analyzes hardware, compiles optimized server version,
+and creates a profile of optimal launch parameters.
 """
 import os
 import sys
@@ -11,13 +11,13 @@ import logging
 import time
 from pathlib import Path
 
-# Добавляем проект в путь импорта
+# Add project to import path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.hardware_optimizer import HardwareOptimizer
 from src.core.config import load_config
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',

@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Обработчик обратной связи
+GC-Forged Pylot - Feedback Handler
 =======================================
 
-Модуль для сбора и обработки обратной связи от пользователя.
+Module for collecting and processing user feedback.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

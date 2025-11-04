@@ -25,7 +25,7 @@ except ImportError:
 from .llm_llama_cpp import LLamaLLM, LLAMA_CPP_AVAILABLE
 from .llm_interface import LLMResponse
 
-# Корректный импорт класса из llm_external.py
+# Correct import of class from llm_external.py
 from .llm_external import ExternalLLMAdapter
 
 logging.basicConfig(level=logging.INFO, 

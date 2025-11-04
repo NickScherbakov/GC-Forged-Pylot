@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Интеграция с VS Code
+GC-Forged Pylot - VS Code Integration
 ====================================
 
-Модуль для взаимодействия с VS Code через Language Server Protocol (LSP).
-Обеспечивает функционал автодополнения кода и другие возможности IDE.
+Module for interacting with VS Code through Language Server Protocol (LSP).
+Provides code completion functionality and other IDE features.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

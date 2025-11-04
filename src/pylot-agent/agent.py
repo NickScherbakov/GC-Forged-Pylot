@@ -5,13 +5,13 @@
 GC-Forged Pylot Agent
 =====================
 
-Основной модуль автономного агента для системы GC-Forged Pylot.
-Агент интегрирует компоненты ядра системы и моста для взаимодействия
-с внешними системами и API.
+Main module of the autonomous agent for the GC-Forged Pylot system.
+The agent integrates core system components and bridge for interaction
+with external systems and APIs.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os

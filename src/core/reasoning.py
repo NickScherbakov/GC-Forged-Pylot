@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система рассуждения
+GC-Forged Pylot - Reasoning System
 ==================================
 
-Модуль для анализа пользовательских запросов и формирования ответов.
+Module for analyzing user requests and formulating responses.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging

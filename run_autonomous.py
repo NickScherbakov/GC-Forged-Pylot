@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-Скрипт запуска GC-Forged-Pylot в автономном режиме с самосовершенствованием.
-Принимает задачу в виде параметра и запускает автономный цикл самообучения.
+Script to launch GC-Forged-Pylot in autonomous mode with self-improvement.
+Takes a task as a parameter and starts an autonomous self-learning cycle.
 """
 import os
 import sys
@@ -10,7 +10,7 @@ import logging
 import time
 from pathlib import Path
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -22,7 +22,7 @@ logging.basicConfig(
 
 logger = logging.getLogger("run_autonomous")
 
-# Добавляем проект в путь импорта
+# Add project to import path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.config import load_config
