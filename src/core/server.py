@@ -35,11 +35,11 @@ logger = logging.getLogger(__name__)
 
 class ModelCache:
     """
-    Кэш для результатов генерации LLM для повторного use.
+    Cache for LLM generation results for reuse.
     """
     def __init__(self, max_size: int = 100, ttl: int = 3600):
         """
-        Инициализирует кэш модели.
+        Initializes model cache.
         
         Args:
             max_size: Максимальное количество элементов в кэше
@@ -99,9 +99,9 @@ class ModelCache:
             value: Значение для кэширования
         """
         with self.lock:
-            # Check размер кэша
+            # Check cache size
             if len(self.cache) >= self.max_size:
-                # Удаляем самую старую запись
+                # Remove oldest entry
                 oldest_key = min(self.cache.items(), key=lambda x: x[1][1])[0]
                 del self.cache[oldest_key]
             

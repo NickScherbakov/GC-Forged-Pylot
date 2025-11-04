@@ -65,11 +65,11 @@ class SelfImprovement:
             except Exception as e:
                 logger.error(f"Error loading self-improvement configuration: {e}")
         else:
-            # Create конфигурацию по умолчанию
+            # Create default configuration
             self._save_config()
     
     def _save_config(self) -> None:
-        """Сохраняет конфигурацию self-improvement."""
+        """Saves self-improvement configuration."""
         config_path = os.path.join("config", "self_improvement_config.json")
         config = {
             "confidence_threshold": self.confidence_threshold,
@@ -135,11 +135,11 @@ class SelfImprovement:
 
     def evaluate_result(self, task_description: str, result: Any) -> Tuple[float, str]:
         """
-        Оценивает результат execution задания с точки зрения качества и соответствия.
+        Evaluates task execution result in terms of quality and compliance.
         
         Args:
-            task_description: Исходное описание задания
-            result: Результат execution задания
+            task_description: Original task description
+            result: Task execution result
             
         Returns:
             Tuple[float, str]: Оценка уверенности (0-1) и текстовое обоснование
@@ -214,9 +214,9 @@ class SelfImprovement:
         response = self.llm.generate(analysis_prompt, max_tokens=768)
         response_text = response.text.strip()
         
-        # Извлечение структурированной информации
+        # Extract structured information
         try:
-            # Use reasoning для структурированного анализа
+            # Use reasoning for structured analysis
             structure_prompt = (
                 f"Convert this feedback analysis into a structured JSON format with these keys:\n"
                 f"- learning_points: array of strings\n"
@@ -319,7 +319,7 @@ class SelfImprovement:
         """
         logger.info(f"Starting task execution with self-improvement: {task_description[:100]}...")
         
-        # Run цикл execution и self-improvement
+        # Run execution and self-improvement cycle
         current_cycle = 0
         best_result = None
         best_confidence = 0.0
@@ -371,25 +371,25 @@ class SelfImprovement:
                 logger.info(f"Achieved sufficient confidence ({confidence:.2f}) in cycle {current_cycle}")
                 break
                 
-            # Если это не последний цикл и уверенность недостаточна
+            # If not the last cycle and confidence is insufficient
             if current_cycle < max_improvement_cycles:
-                # Create самообратную связь на основе оценки
+                # Create self-feedback based on evaluation
                 self_feedback_prompt = (
                     f"Based on the evaluation of the previous result:\n\n{evaluation}\n\n"
                     f"Generate specific feedback to improve the system's approach to this task: {task_description}"
                 )
                 self_feedback = self.llm.generate(self_feedback_prompt, max_tokens=512).text
                 
-                # Применяем обратную связь как новый входной параметр для улучшения
+                # Apply feedback as new input parameter for improvement
                 logger.info(f"Applying self-generated feedback for cycle {current_cycle + 1}")
                 feedback_analysis = self.process_user_feedback(
                     task_description, result, self_feedback
                 )
                 
-                # Add план улучшения в историю
+                # Add improvement plan to history
                 cycle_info["improvement_plan"] = feedback_analysis.get("improvement_plan", [])
         
-        # Update счетчик циклов self-improvement
+        # Update self-improvement cycle counter
         self.improvement_cycle_count += current_cycle
         self.improvement_history.extend(improvement_history)
         self._save_config()

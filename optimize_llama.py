@@ -135,7 +135,7 @@ def main():
             )
         
         logger.info(f"Benchmark completed in {time.time() - start_time:.1f} sec")
-        logger.info(f"Results: {result.tokens_per_second:.2f} токенов/sec, "
+        logger.info(f"Results: {result.tokens_per_second:.2f} tokens/sec, "
                   f"latency: {result.latency_ms:.2f} ms")
     else:
         # Simply update hardware profile and parameters

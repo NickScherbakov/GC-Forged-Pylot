@@ -21,7 +21,7 @@ import argparse
 import json
 from typing import Dict, List, Any, Optional, Union, Tuple
 
-# Add путь к родительскому каталогу в sys.path
+# Add path to parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Импорт компонентов ядра
@@ -69,7 +69,7 @@ class PylotAgent:
         logger.info("Инициализация агента Pylot...")
         self.config = self._load_config(config_path)
         
-        # Инициализация LLM depending on типа
+        # Initialize LLM depending on type
         llm_config = self.config.get("llm", {})
         llm_type = llm_config.get("type", "llama_cpp")
         
