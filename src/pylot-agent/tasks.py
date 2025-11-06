@@ -5,13 +5,13 @@
 GC-Forged Pylot Tasks
 =====================
 
-Модуль для определения и управления задачами агента GC-Forged Pylot.
-Обеспечивает структуру для создания, отслеживания и выполнения сложных задач,
-а также их декомпозицию на подзадачи.
+Module for defining and managing GC-Forged Pylot agent tasks.
+Provides structure for creating, tracking, and executing complex tasks,
+as well as their decomposition into subtasks.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os
@@ -23,7 +23,7 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional, Union, Callable
 from enum import Enum, auto
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -104,8 +104,8 @@ class Task:
         self.subtasks: List[str] = []  # ID подзадач
         self.dependencies: List[str] = []  # ID задач, от которых зависит эта задача
         
-        self.progress = 0.0  # Прогресс выполнения от 0.0 до 1.0
-        self.result = None  # Результат выполнения задачи
+        self.progress = 0.0  # Прогресс execution от 0.0 до 1.0
+        self.result = None  # Результат execution задачи
         self.error = None  # Информация об ошибке, если задача не выполнена
         
         logger.debug(f"Создана задача {self.id}: {self.title}")
@@ -153,10 +153,10 @@ class Task:
     
     def update_progress(self, progress: float) -> None:
         """
-        Обновляет прогресс выполнения задачи.
+        Обновляет прогресс execution задачи.
         
         Args:
-            progress: Прогресс выполнения от 0.0 до 1.0
+            progress: Прогресс execution от 0.0 до 1.0
         """
         if 0.0 <= progress <= 1.0:
             self.progress = progress
@@ -167,10 +167,10 @@ class Task:
     
     def set_result(self, result: Any) -> None:
         """
-        Устанавливает результат выполнения задачи.
+        Устанавливает результат execution задачи.
         
         Args:
-            result: Результат выполнения задачи
+            result: Результат execution задачи
         """
         self.result = result
         self.update()
@@ -253,7 +253,7 @@ class Task:
 
 class TaskManager:
     """
-    Класс для управления задачами агента Pylot.
+    Класс для management задачами агента Pylot.
     
     Выполняет создание, отслеживание и управление задачами,
     обеспечивает их сохранение и загрузку.
@@ -410,7 +410,7 @@ class TaskManager:
     
     def get_next_task(self) -> Optional[Task]:
         """
-        Возвращает следующую задачу для выполнения.
+        Возвращает следующую задачу для execution.
         
         Returns:
             Задача с наивысшим приоритетом, готовая к выполнению,
@@ -441,13 +441,13 @@ class TaskManager:
     
     def calculate_task_tree_progress(self, root_task_id: str) -> float:
         """
-        Рассчитывает общий прогресс выполнения задачи с подзадачами.
+        Рассчитывает общий прогресс execution задачи с подзадачами.
         
         Args:
             root_task_id: ID корневой задачи
         
         Returns:
-            Процент выполнения от 0.0 до 1.0
+            Процент execution от 0.0 до 1.0
         """
         root_task = self.get_task(root_task_id)
         if not root_task:
@@ -506,9 +506,9 @@ class TaskManager:
 
 class ContinuousTasks:
     """
-    Класс для управления непрерывным выполнением задач.
+    Класс для management непрерывным выполнением задач.
     
-    Обеспечивает создание итераций выполнения задач агента,
+    Обеспечивает создание итераций execution задач агента,
     отслеживание последовательных задач и их взаимосвязей.
     """
     
@@ -526,7 +526,7 @@ class ContinuousTasks:
     
     def start_iteration(self, query: str) -> str:
         """
-        Начинает новую итерацию обработки запроса.
+        Начинает новую итерацию processing запроса.
         
         Args:
             query: Текст запроса пользователя
@@ -536,7 +536,7 @@ class ContinuousTasks:
         """
         self.current_iteration += 1
         
-        # Создаем корневую задачу для итерации
+        # Create корневую задачу для итерации
         task = self.task_manager.create_task(
             title=f"Итерация #{self.current_iteration}",
             description=f"Обработка запроса: {query}",
@@ -548,20 +548,20 @@ class ContinuousTasks:
         self.current_task_id = task.id
         logger.info(f"Начата итерация #{self.current_iteration}, задача {task.id}")
         
-        # Создаем стандартные подзадачи для обработки запроса
+        # Create стандартные подзадачи для processing запроса
         self._create_standard_subtasks(task.id, query)
         
         return task.id
     
     def _create_standard_subtasks(self, parent_id: str, query: str) -> None:
         """
-        Создает стандартные подзадачи для обработки запроса.
+        Создает стандартные подзадачи для processing запроса.
         
         Args:
             parent_id: ID родительской задачи
             query: Текст запроса пользователя
         """
-        # Создаем подзадачу для планирования
+        # Create подзадачу для planning
         planning_task = self.task_manager.create_task(
             title="Планирование",
             description="Анализ запроса и планирование действий",
@@ -569,27 +569,27 @@ class ContinuousTasks:
             parent_id=parent_id
         )
         
-        # Создаем подзадачу для исполнения
+        # Create подзадачу для исполнения
         execution_task = self.task_manager.create_task(
             title="Исполнение",
             description="Выполнение запланированных действий",
             task_type=TaskType.EXECUTION,
             parent_id=parent_id
         )
-        # Зависит от планирования
+        # Зависит от planning
         execution_task.add_dependency(planning_task.id)
         
-        # Создаем подзадачу для оценки
+        # Create подзадачу для оценки
         evaluation_task = self.task_manager.create_task(
             title="Оценка",
-            description="Оценка результатов выполнения",
+            description="Оценка результатов execution",
             task_type=TaskType.EVALUATION,
             parent_id=parent_id
         )
         # Зависит от исполнения
         evaluation_task.add_dependency(execution_task.id)
         
-        # Обновляем таски
+        # Update таски
         self.task_manager.update_task(execution_task)
         self.task_manager.update_task(evaluation_task)
     
@@ -598,7 +598,7 @@ class ContinuousTasks:
         Завершает текущую итерацию.
         
         Args:
-            result: Результат выполнения итерации
+            result: Результат execution итерации
         """
         if self.current_task_id:
             task = self.task_manager.get_task(self.current_task_id)
@@ -630,7 +630,7 @@ class ContinuousTasks:
         if not self.current_task_id:
             return self.start_iteration(query)
         
-        # Создаем задачу продолжения как подзадачу текущей итерации
+        # Create задачу продолжения как подзадачу текущей итерации
         task = self.task_manager.create_task(
             title=f"Продолжение",
             description=f"Продолжение запроса: {query}",
@@ -657,7 +657,7 @@ class ContinuousTasks:
         Возвращает прогресс текущей задачи.
         
         Returns:
-            Процент выполнения от 0.0 до 1.0
+            Процент execution от 0.0 до 1.0
         """
         if not self.current_task_id:
             return 0.0

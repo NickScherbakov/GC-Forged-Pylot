@@ -2,15 +2,15 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Адаптер для внешних LLM API
+GC-Forged Pylot - Adapter for External LLM APIs
 ============================================
 
-Модуль для интеграции внешних API языковых моделей (например, Ollama, llama.cpp)
-с основным кодом проекта.
+Module for integrating external language model APIs (e.g., Ollama, llama.cpp)
+with the main project code.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os
@@ -22,14 +22,14 @@ import asyncio
 from typing import Dict, List, Any, Optional, Union, Callable, Generator, AsyncGenerator
 import threading
 
-# Добавляем родительский каталог в sys.path для импорта
+# Add parent directory в sys.path для импорта
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Изменяем импорт с более конкретным указанием пути
 from ..bridge.proxy import ExternalLLMProxy
 from .llm_interface import LLMInterface, LLMResponse
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -43,7 +43,7 @@ class ExternalLLMAdapter(LLMInterface):
     Адаптер для внешнего API LLM, соответствующий интерфейсу LLMInterface.
     
     Этот класс обеспечивает единый интерфейс для работы с внешними API
-    языковых моделей, таких как Ollama, llama.cpp или другие совместимые с OpenAI API.
+    language models, таких как Ollama, llama.cpp или другие совместимые с OpenAI API.
     """
     
     def __init__(self, config: Dict[str, Any] = None):
@@ -87,7 +87,7 @@ class ExternalLLMAdapter(LLMInterface):
         self._cached_models = None
         self._models_last_update = 0
         
-        # Проверяем соединение
+        # Check соединение
         self._check_connection()
         
         logger.info(f"Адаптер ExternalLLM инициализирован с API {api_url}")
@@ -132,7 +132,7 @@ class ExternalLLMAdapter(LLMInterface):
             List[Dict[str, Any]]: Список доступных моделей
         """
         with self.lock:
-            # Обновляем кэш моделей, если он старше 5 минут или пуст
+            # Update кэш моделей, если он старше 5 минут или пуст
             if self._cached_models is None or time.time() - self._models_last_update > 300:
                 self._update_models_cache()
             
@@ -214,7 +214,7 @@ class ExternalLLMAdapter(LLMInterface):
             completion_tokens = usage.get("completion_tokens", self.count_tokens(text))
             total_tokens = usage.get("total_tokens", prompt_tokens + completion_tokens)
             
-            # Создаем ответ
+            # Create ответ
             response = LLMResponse(
                 text=text,
                 metadata={
@@ -291,7 +291,7 @@ class ExternalLLMAdapter(LLMInterface):
                 
                 elapsed = time.time() - start_time
                 
-                # Создаем и возвращаем ответ для каждого фрагмента
+                # Create и возвращаем ответ для каждого фрагмента
                 yield LLMResponse(
                     text=chunk_text,
                     metadata={
@@ -378,7 +378,7 @@ class ExternalLLMAdapter(LLMInterface):
             usage = result.get("usage", {})
             total_tokens = usage.get("total_tokens", 0)
             
-            # Создаем ответ
+            # Create ответ
             response = LLMResponse(
                 text=text,
                 metadata={
@@ -449,7 +449,7 @@ class ExternalLLMAdapter(LLMInterface):
                 
                 elapsed = time.time() - start_time
                 
-                # Создаем и возвращаем ответ для каждого фрагмента
+                # Create и возвращаем ответ для каждого фрагмента
                 yield LLMResponse(
                     text=chunk_text,
                     metadata={
@@ -560,7 +560,7 @@ class ExternalLLMAdapter(LLMInterface):
             logger.warning(f"Ошибка при выключении адаптера ExternalLLM: {e}")
 
 
-# Пример конфигурации
+# Пример configuration
 EXAMPLE_CONFIG = {
     "external_api": {
         "url": "http://localhost:8000/v1",
@@ -577,7 +577,7 @@ EXAMPLE_CONFIG = {
 
 
 if __name__ == "__main__":
-    # Пример использования
+    # Пример use
     llm = ExternalLLMAdapter(EXAMPLE_CONFIG)
     
     if llm.connected:

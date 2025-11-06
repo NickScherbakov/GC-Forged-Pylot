@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система рассуждения
+GC-Forged Pylot - Reasoning System
 ==================================
 
-Модуль для анализа пользовательских запросов и формирования ответов.
+Module for analyzing user requests and formulating responses.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging
@@ -25,23 +25,23 @@ class Reasoner:
     Класс для анализа пользовательских запросов и формирования ответов.
     
     Основан на языковой модели, выполняет анализ запросов, формирует
-    рассуждения и генерирует ответы.
+    reasoning и генерирует ответы.
     """
     
     def __init__(self, llm: LLMInterface, config: Dict[str, Any] = None):
         """
-        Инициализирует систему рассуждения.
+        Инициализирует систему reasoning.
         
         Args:
             llm: Интерфейс языковой модели
-            config: Конфигурация системы рассуждения
+            config: Конфигурация системы reasoning
         """
         self.llm = llm
         self.config = config or {}
         self.chain_of_thought = self.config.get("chain_of_thought", True)
         self.verbosity = self.config.get("verbosity", "medium")
         
-        logger.info("Система рассуждения инициализирована")
+        logger.info("Система reasoning инициализирована")
     
     def analyze(self, user_input: str, context: List[Dict[str, Any]] = None) -> Dict[str, Any]:
         """
@@ -49,7 +49,7 @@ class Reasoner:
         
         Args:
             user_input: Запрос пользователя
-            context: Контекст из истории взаимодействия
+            context: Контекст из истории interaction
             
         Returns:
             Результаты анализа запроса
@@ -83,10 +83,10 @@ class Reasoner:
         
         Args:
             user_input: Запрос пользователя
-            context: Контекст из истории взаимодействия
+            context: Контекст из истории interaction
             
         Returns:
-            Промпт для системы рассуждения
+            Промпт для системы reasoning
         """
         context_str = ""
         if context and len(context) > 0:
@@ -115,7 +115,7 @@ ENTITIES: [сущность1, сущность2, ...]
 COMPLEXITY: [сложность]
 TOOLS_NEEDED: [инструмент1, инструмент2, ...]
 ADDITIONAL_DATA_NEEDED: [да/нет]
-REASONING: [твои рассуждения]
+REASONING: [твои reasoning]
 
 """
         return prompt
@@ -207,7 +207,7 @@ REASONING: [твои рассуждения]
         Args:
             analysis_result: Результаты анализа запроса
             user_input: Запрос пользователя
-            context: Контекст из истории взаимодействия
+            context: Контекст из истории interaction
             
         Returns:
             Текст ответа
@@ -227,7 +227,7 @@ REASONING: [твои рассуждения]
         Args:
             analysis_result: Результаты анализа запроса
             user_input: Запрос пользователя
-            context: Контекст из истории взаимодействия
+            context: Контекст из истории interaction
             
         Returns:
             Промпт для генерации ответа

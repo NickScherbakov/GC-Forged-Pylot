@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Менеджер инструментов
+GC-Forged Pylot - Tool Manager
 ====================================
 
-Модуль для управления инструментами, доступными агенту.
+Module for managing tools available to the agent.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os
@@ -49,10 +49,10 @@ class Tool:
         Выполняет инструмент с переданными аргументами.
         
         Args:
-            **kwargs: Аргументы для выполнения
+            **kwargs: Аргументы для execution
             
         Returns:
-            Any: Результат выполнения инструмента
+            Any: Результат execution инструмента
         """
         raise NotImplementedError("Метод должен быть реализован в дочернем классе")
 
@@ -77,12 +77,12 @@ class DummyTool(Tool):
         Возвращает сообщение об ошибке вместо результата.
         
         Args:
-            **kwargs: Аргументы для выполнения
+            **kwargs: Аргументы для execution
             
         Returns:
             Dict[str, Any]: Сообщение об ошибке
         """
-        logger.warning(f"Попытка выполнения заглушки инструмента '{self.name}'")
+        logger.warning(f"Попытка execution заглушки инструмента '{self.name}'")
         return {
             "success": False,
             "error": self.error_message or f"Инструмент '{self.name}' недоступен",
@@ -92,10 +92,10 @@ class DummyTool(Tool):
 
 class ToolManager:
     """
-    Класс для управления инструментами, доступными агенту.
+    Класс для management инструментами, доступными агенту.
     
     Загружает, регистрирует и предоставляет доступ к инструментам,
-    необходимым для выполнения различных задач.
+    необходимым для execution различных задач.
     """
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -118,7 +118,7 @@ class ToolManager:
     
     def register_tool(self, tool_config: Dict[str, Any]) -> bool:
         """
-        Регистрирует инструмент на основе его конфигурации.
+        Регистрирует инструмент на основе его configuration.
         
         Args:
             tool_config: Конфигурация инструмента
@@ -141,7 +141,7 @@ class ToolManager:
             return False
         
         try:
-            # Загружаем модуль инструмента
+            # Load модуль инструмента
             module_path = os.path.normpath(module_path)
             if module_path.endswith(".py"):
                 module_path = module_path[:-3]  # Удаляем расширение .py
@@ -161,7 +161,7 @@ class ToolManager:
                     module = importlib.import_module(module_path)
                 except ImportError as e:
                     logger.error(f"Не удалось импортировать модуль инструмента '{tool_name}': {str(e)}")
-                    # Создаем заглушку
+                    # Create заглушку
                     self.tools[tool_name] = DummyTool(tool_name, tool_description, f"Импорт не удался: {str(e)}")
                     return False
             
@@ -170,7 +170,7 @@ class ToolManager:
             if tool_class_name:
                 if not hasattr(module, tool_class_name):
                     logger.error(f"Класс '{tool_class_name}' не найден в модуле '{module_path}'")
-                    # Создаем заглушку
+                    # Create заглушку
                     self.tools[tool_name] = DummyTool(tool_name, tool_description, f"Класс '{tool_class_name}' не найден")
                     return False
                 tool_class = getattr(module, tool_class_name)
@@ -179,12 +179,12 @@ class ToolManager:
                 tool_classes = [cls for name, cls in module.__dict__.items() if isinstance(cls, type) and issubclass(cls, Tool) and cls != Tool]
                 if not tool_classes:
                     logger.error(f"В модуле '{module_path}' не найден класс инструмента")
-                    # Создаем заглушку
+                    # Create заглушку
                     self.tools[tool_name] = DummyTool(tool_name, tool_description, "Класс инструмента не найден")
                     return False
                 tool_class = tool_classes[0]
             
-            # Создаем экземпляр инструмента
+            # Create экземпляр инструмента
             tool = tool_class(tool_name, tool_description, tool_config.get("config", {}))
             
             # Регистрируем инструмент
@@ -194,7 +194,7 @@ class ToolManager:
             
         except Exception as e:
             logger.error(f"Ошибка при регистрации инструмента '{tool_name}': {str(e)}")
-            # Создаем заглушку
+            # Create заглушку
             self.tools[tool_name] = DummyTool(tool_name, tool_description, str(e))
             return False
 

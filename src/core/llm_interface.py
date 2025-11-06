@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Интерфейс для языковых моделей
+GC-Forged Pylot - Interface for Language Models
 ===============================================
 
-Базовый интерфейс для взаимодействия с языковыми моделями.
+Base interface for interacting with language models.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging
@@ -21,16 +21,16 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class LLMResponse:
-    """Результат выполнения запроса к языковой модели."""
+    """Результат execution запроса к языковой модели."""
     text: str
     metadata: Dict[str, Any] = None
 
 
 class LLMInterface:
     """
-    Базовый интерфейс для языковых моделей.
+    Базовый интерфейс для language models.
     
-    Этот класс определяет общий интерфейс для всех языковых моделей,
+    Этот класс определяет общий интерфейс для всех language models,
     используемых в системе GC-Forged Pylot.
     """
     
@@ -119,7 +119,7 @@ class LLMInterface:
     
     def get_max_context_length(self) -> int:
         """
-        Возвращает максимальную длину контекста для модели.
+        Returns максимальную длину контекста для модели.
         
         Returns:
             int: Максимальная длина контекста в токенах

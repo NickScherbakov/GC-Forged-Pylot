@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система выполнения
+GC-Forged Pylot - Execution System
 =================================
 
-Модуль для выполнения планов действий.
+Module for executing action plans.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging
@@ -21,17 +21,17 @@ logger = logging.getLogger(__name__)
 
 class Executor:
     """
-    Класс для выполнения планов действий.
+    Класс для execution action plans.
     
     Выполняет шаги плана, управляет результатами и обрабатывает ошибки.
     """
     
     def __init__(self, config: Dict[str, Any] = None):
         """
-        Инициализирует систему выполнения.
+        Инициализирует систему execution.
         
         Args:
-            config: Конфигурация системы выполнения
+            config: Конфигурация системы execution
         """
         self.config = config or {}
         self.timeout = self.config.get("timeout", 30)  # Таймаут в секундах
@@ -45,21 +45,21 @@ class Executor:
             "analyze_data": self._handle_analyze_data
         }
         
-        logger.info("Система выполнения инициализирована")
+        logger.info("Система execution инициализирована")
     
     def execute_plan(self, plan, tool_manager, api_connector) -> Dict[str, Any]:
         """
         Выполняет план действий.
         
         Args:
-            plan: План действий для выполнения
+            plan: План действий для execution
             tool_manager: Менеджер инструментов
             api_connector: Коннектор API
             
         Returns:
-            Результаты выполнения плана
+            Результаты execution плана
         """
-        logger.info(f"Начало выполнения плана: {plan.goal}")
+        logger.info(f"Начало execution плана: {plan.goal}")
         
         results = {
             "success": True,
@@ -131,7 +131,7 @@ class Executor:
         """Обрабатывает шаг поиска информации."""
         query = step.get("input", "")
         
-        # Проверяем, есть ли инструмент поиска
+        # Check, есть ли инструмент поиска
         if tool_manager.has_tool("web_search"):
             search_tool = tool_manager.get_tool("web_search")
             return search_tool.execute(query=query)

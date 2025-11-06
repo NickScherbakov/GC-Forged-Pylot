@@ -5,13 +5,13 @@
 GC-Forged Pylot Agent
 =====================
 
-Основной модуль автономного агента для системы GC-Forged Pylot.
-Агент интегрирует компоненты ядра системы и моста для взаимодействия
-с внешними системами и API.
+Main module of the autonomous agent for the GC-Forged Pylot system.
+The agent integrates core system components and bridge for interaction
+with external systems and APIs.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os
@@ -21,7 +21,7 @@ import argparse
 import json
 from typing import Dict, List, Any, Optional, Union, Tuple
 
-# Добавляем путь к родительскому каталогу в sys.path
+# Add path to parent directory to sys.path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Импорт компонентов ядра
@@ -38,7 +38,7 @@ from bridge.api_connector import APIConnector
 from bridge.tool_manager import ToolManager
 from bridge.feedback_handler import FeedbackHandler
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -56,7 +56,7 @@ class PylotAgent:
     Главный класс автономного агента GC-Forged Pylot.
     
     Агент объединяет различные компоненты системы для обеспечения
-    интеллектуального взаимодействия с пользователем и внешними системами.
+    интеллектуального interaction с пользователем и внешними системами.
     """
     
     def __init__(self, config_path: str = "config/agent_config.json"):
@@ -64,12 +64,12 @@ class PylotAgent:
         Инициализирует агента с заданной конфигурацией.
         
         Args:
-            config_path: Путь к файлу конфигурации агента в формате JSON.
+            config_path: Путь к файлу configuration агента в формате JSON.
         """
         logger.info("Инициализация агента Pylot...")
         self.config = self._load_config(config_path)
         
-        # Инициализация LLM в зависимости от типа
+        # Initialize LLM depending on type
         llm_config = self.config.get("llm", {})
         llm_type = llm_config.get("type", "llama_cpp")
         
@@ -103,14 +103,14 @@ class PylotAgent:
         Загружает конфигурацию агента из JSON-файла.
         
         Args:
-            config_path: Путь к файлу конфигурации.
+            config_path: Путь к файлу configuration.
             
         Returns:
-            Словарь с параметрами конфигурации.
+            Словарь с параметрами configuration.
             
         Raises:
-            FileNotFoundError: Если файл конфигурации не найден.
-            json.JSONDecodeError: Если файл конфигурации содержит некорректный JSON.
+            FileNotFoundError: Если файл configuration не найден.
+            json.JSONDecodeError: Если файл configuration содержит некорректный JSON.
         """
         try:
             with open(config_path, "r", encoding="utf-8") as f:
@@ -118,10 +118,10 @@ class PylotAgent:
             logger.info(f"Конфигурация загружена из {config_path}")
             return config
         except FileNotFoundError:
-            logger.warning(f"Файл конфигурации {config_path} не найден. Используются параметры по умолчанию.")
+            logger.warning(f"Файл configuration {config_path} не найден. Используются параметры по умолчанию.")
             return {}
         except json.JSONDecodeError:
-            logger.error(f"Ошибка при разборе файла конфигурации {config_path}. Используются параметры по умолчанию.")
+            logger.error(f"Ошибка при разборе файла configuration {config_path}. Используются параметры по умолчанию.")
             return {}
     
     def start(self) -> None:
@@ -151,9 +151,9 @@ class PylotAgent:
         logger.info(f"Загружено {len(tool_configs)} инструментов")
     
     def _initialize_memory(self) -> None:
-        """Инициализирует систему памяти агента."""
+        """Инициализирует систему memory агента."""
         memory_type = self.config.get("memory", {}).get("type", "default")
-        logger.info(f"Инициализация памяти типа '{memory_type}'")
+        logger.info(f"Инициализация memory типа '{memory_type}'")
         self.memory.initialize()
     
     def _connect_apis(self) -> None:
@@ -169,13 +169,13 @@ class PylotAgent:
         logger.info("Все соединения с API закрыты")
     
     def _save_conversation_history(self) -> None:
-        """Сохраняет историю взаимодействия с пользователем."""
+        """Сохраняет историю interaction с пользователем."""
         if self.conversation_history:
             history_path = self.config.get("memory", {}).get("history_path", "data/conversation_history.json")
             os.makedirs(os.path.dirname(history_path), exist_ok=True)
             with open(history_path, "w", encoding="utf-8") as f:
                 json.dump(self.conversation_history, f, ensure_ascii=False, indent=2)
-            logger.info(f"История взаимодействия сохранена в {history_path}")
+            logger.info(f"История interaction сохранена в {history_path}")
     
     def process_input(self, user_input: str) -> str:
         """
@@ -224,10 +224,10 @@ class PylotAgent:
             "timestamp": self._get_current_timestamp()
         })
         
-        # Обработка обратной связи
+        # Обработка feedback
         self.feedback_handler.log_interaction(user_input, response, self.current_plan, result)
         
-        # Обновление памяти
+        # Обновление memory
         self.memory.add_interaction(user_input, response)
         
         logger.info(f"Отправлен ответ длиной {len(response)} символов")
@@ -252,10 +252,10 @@ class PylotAgent:
             "Обработка естественного языка",
             "Планирование последовательности действий",
             "Рассуждение и анализ информации",
-            "Долговременная память взаимодействия"
+            "Долговременная память interaction"
         ]
         
-        # Добавляем информацию о типе LLM
+        # Add информацию о типе LLM
         llm_type = self.config.get("llm", {}).get("type", "llama_cpp")
         if llm_type == "external":
             api_url = self.config.get("llm", {}).get("external_api", {}).get("url", "")
@@ -283,7 +283,7 @@ def main():
         "--config", 
         type=str, 
         default="config/agent_config.json",
-        help="Путь к файлу конфигурации агента"
+        help="Путь к файлу configuration агента"
     )
     parser.add_argument(
         "--interactive", 
@@ -298,7 +298,7 @@ def main():
     
     args = parser.parse_args()
     
-    # Загружаем конфигурацию и модифицируем при необходимости
+    # Load конфигурацию и модифицируем при необходимости
     with open(args.config, "r", encoding="utf-8") as f:
         config = json.load(f)
         
@@ -311,7 +311,7 @@ def main():
     with open(temp_config_path, "w", encoding="utf-8") as f:
         json.dump(config, f, ensure_ascii=False, indent=2)
     
-    # Создаем и запускаем агента с модифицированной конфигурацией
+    # Create и запускаем агента с модифицированной конфигурацией
     agent = PylotAgent(config_path=temp_config_path)
     agent.start()
     
@@ -329,7 +329,7 @@ def main():
         print("\nПолучен сигнал прерывания. Завершение работы...")
     finally:
         agent.stop()
-        # Удаляем временный файл конфигурации
+        # Удаляем временный файл configuration
         if os.path.exists(temp_config_path):
             os.remove(temp_config_path)
         print("GC-Forged Pylot Agent остановлен.")

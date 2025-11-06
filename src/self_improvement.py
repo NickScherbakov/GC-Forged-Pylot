@@ -10,7 +10,7 @@ from src.core.reasoning import Reasoning
 from src.core.planner import Planner
 from src.bridge.feedback_handler import FeedbackHandler
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -47,29 +47,29 @@ class SelfImprovement:
         self.feedback_handler = feedback_handler
         self.improvement_cycle_count = 0
         self.improvement_history = []
-        self.confidence_threshold = 0.85  # Порог уверенности для успешного выполнения
+        self.confidence_threshold = 0.85  # Confidence threshold for successful execution
         
-        # Загружаем конфигурацию самосовершенствования, если существует
+        # Load self-improvement configuration if it exists
         self._load_config()
 
     def _load_config(self) -> None:
-        """Загружает конфигурацию самосовершенствования."""
+        """Loads self-improvement configuration."""
         config_path = os.path.join("config", "self_improvement_config.json")
         if os.path.exists(config_path):
             try:
                 with open(config_path, 'r') as f:
                     config = json.load(f)
                 self.confidence_threshold = config.get("confidence_threshold", 0.85)
-                # Другие параметры конфигурации можно добавить здесь
+                # Other configuration parameters can be added here
                 logger.info(f"Loaded self-improvement configuration from {config_path}")
             except Exception as e:
                 logger.error(f"Error loading self-improvement configuration: {e}")
         else:
-            # Создаем конфигурацию по умолчанию
+            # Create default configuration
             self._save_config()
     
     def _save_config(self) -> None:
-        """Сохраняет конфигурацию самосовершенствования."""
+        """Saves self-improvement configuration."""
         config_path = os.path.join("config", "self_improvement_config.json")
         config = {
             "confidence_threshold": self.confidence_threshold,
@@ -135,11 +135,11 @@ class SelfImprovement:
 
     def evaluate_result(self, task_description: str, result: Any) -> Tuple[float, str]:
         """
-        Оценивает результат выполнения задания с точки зрения качества и соответствия.
+        Evaluates task execution result in terms of quality and compliance.
         
         Args:
-            task_description: Исходное описание задания
-            result: Результат выполнения задания
+            task_description: Original task description
+            result: Task execution result
             
         Returns:
             Tuple[float, str]: Оценка уверенности (0-1) и текстовое обоснование
@@ -189,7 +189,7 @@ class SelfImprovement:
         
         Args:
             task_description: Исходное описание задания
-            result: Результат выполнения задания
+            result: Результат execution задания
             feedback: Обратная связь от пользователя
             
         Returns:
@@ -214,9 +214,9 @@ class SelfImprovement:
         response = self.llm.generate(analysis_prompt, max_tokens=768)
         response_text = response.text.strip()
         
-        # Извлечение структурированной информации
+        # Extract structured information
         try:
-            # Используем reasoning для структурированного анализа
+            # Use reasoning for structured analysis
             structure_prompt = (
                 f"Convert this feedback analysis into a structured JSON format with these keys:\n"
                 f"- learning_points: array of strings\n"
@@ -306,7 +306,7 @@ class SelfImprovement:
                                      max_improvement_cycles: int = 3,
                                      notify_on_completion: bool = True) -> Dict[str, Any]:
         """
-        Выполняет задание с циклом самосовершенствования до достижения 
+        Выполняет задание с циклом self-improvement до достижения 
         удовлетворительного результата или максимального числа итераций.
         
         Args:
@@ -315,11 +315,11 @@ class SelfImprovement:
             notify_on_completion: Отправлять ли уведомление по окончании
             
         Returns:
-            Dict[str, Any]: Результат выполнения задания и метаданные процесса
+            Dict[str, Any]: Результат execution задания и метаданные процесса
         """
         logger.info(f"Starting task execution with self-improvement: {task_description[:100]}...")
         
-        # Запускаем цикл выполнения и самосовершенствования
+        # Run execution and self-improvement cycle
         current_cycle = 0
         best_result = None
         best_confidence = 0.0
@@ -371,25 +371,25 @@ class SelfImprovement:
                 logger.info(f"Achieved sufficient confidence ({confidence:.2f}) in cycle {current_cycle}")
                 break
                 
-            # Если это не последний цикл и уверенность недостаточна
+            # If not the last cycle and confidence is insufficient
             if current_cycle < max_improvement_cycles:
-                # Создаем самообратную связь на основе оценки
+                # Create self-feedback based on evaluation
                 self_feedback_prompt = (
                     f"Based on the evaluation of the previous result:\n\n{evaluation}\n\n"
                     f"Generate specific feedback to improve the system's approach to this task: {task_description}"
                 )
                 self_feedback = self.llm.generate(self_feedback_prompt, max_tokens=512).text
                 
-                # Применяем обратную связь как новый входной параметр для улучшения
+                # Apply feedback as new input parameter for improvement
                 logger.info(f"Applying self-generated feedback for cycle {current_cycle + 1}")
                 feedback_analysis = self.process_user_feedback(
                     task_description, result, self_feedback
                 )
                 
-                # Добавляем план улучшения в историю
+                # Add improvement plan to history
                 cycle_info["improvement_plan"] = feedback_analysis.get("improvement_plan", [])
         
-        # Обновляем счетчик циклов самосовершенствования
+        # Update self-improvement cycle counter
         self.improvement_cycle_count += current_cycle
         self.improvement_history.extend(improvement_history)
         self._save_config()
@@ -419,12 +419,12 @@ class SelfImprovement:
                                      feedback_poll_interval: int = 3600,
                                      max_autonomous_cycles: int = 10) -> None:
         """
-        Запускает непрерывный цикл самосовершенствования, который выполняет задания 
+        Запускает непрерывный цикл self-improvement, который выполняет задания 
         и периодически проверяет обратную связь от пользователя.
         
         Args:
-            initial_task: Начальное задание для выполнения
-            feedback_poll_interval: Интервал проверки обратной связи (в секундах)
+            initial_task: Начальное задание для execution
+            feedback_poll_interval: Интервал проверки feedback (в секундах)
             max_autonomous_cycles: Максимальное число автономных циклов улучшения
         """
         logger.info(f"Starting continuous improvement daemon with initial task: {initial_task[:100]}")
@@ -434,7 +434,7 @@ class SelfImprovement:
         last_feedback_check = time.time()
         
         while autonomous_cycles < max_autonomous_cycles:
-            # Выполняем текущее задание с самосовершенствованием
+            # Execute текущее задание с самосовершенствованием
             result = self.execute_task_with_improvement(
                 current_task, 
                 max_improvement_cycles=3,
@@ -444,7 +444,7 @@ class SelfImprovement:
             autonomous_cycles += 1
             logger.info(f"Completed autonomous cycle {autonomous_cycles} with confidence {result['confidence']:.2f}")
             
-            # Проверяем наличие обратной связи от пользователя
+            # Check наличие feedback от пользователя
             if time.time() - last_feedback_check >= feedback_poll_interval:
                 last_feedback_check = time.time()
                 feedback = None
@@ -463,7 +463,7 @@ class SelfImprovement:
                         current_task, result["result"], feedback
                     )
                     
-                    # Формируем новое задание на основе обратной связи
+                    # Формируем новое задание на основе feedback
                     if feedback_analysis.get("improvement_plan"):
                         improvement_plan = "\n".join(feedback_analysis["improvement_plan"])
                         new_task_prompt = (
@@ -473,7 +473,7 @@ class SelfImprovement:
                         )
                         new_task = self.llm.generate(new_task_prompt, max_tokens=512).text.strip()
                         current_task = new_task
-                        autonomous_cycles = 0  # Сбрасываем счетчик после получения обратной связи
+                        autonomous_cycles = 0  # Сбрасываем счетчик после получения feedback
                         logger.info(f"Updated task based on feedback: {current_task[:100]}")
                     
             # Если достигли достаточной уверенности, сообщаем об этом

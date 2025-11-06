@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-GC-Forged-Pylot - Точка входа в приложение
-Запускает локальный LLM сервер на базе llama.cpp с интеграцией GitHub Copilot
+GC-Forged-Pylot - Application Entry Point
+Launches local LLM server based on llama.cpp with GitHub Copilot integration
 
-Автор: GC-Forged-Pylot Team
+Author: GC-Forged-Pylot Team
 """
 import argparse
 import uvicorn
@@ -39,7 +39,7 @@ def main():
     args = parser.parse_args()
 
     try:
-        # Проверка и оптимизация системы при необходимости
+        # Check and optimize system if necessary
         if not args.skip_optimization:
             logger.info("Checking system optimization...")
             optimization_result = perform_optimization(quiet=False, force=args.force_optimization)
@@ -60,13 +60,13 @@ def main():
         cache_config = config.get('cache', {})
         api_keys = config.get('api_keys', []) # Load API keys from config
 
-        # Загружаем оптимизированные параметры, если доступны
+        # Load optimized parameters if available
         try:
             from src.core.hardware_optimizer import HardwareOptimizer
             optimizer = HardwareOptimizer()
             optimized_params = optimizer.get_optimal_launch_parameters()
             
-            # Обновляем параметры из оптимизированного профиля, если не указаны явно в конфиге
+            # Update parameters from optimized profile if not explicitly specified in config
             if 'n_ctx' not in model_config:
                 model_config['n_ctx'] = optimized_params.get('n_ctx', 2048)
             if 'n_gpu_layers' not in model_config:
@@ -94,7 +94,7 @@ def main():
             # Pass other necessary parameters from config to LlamaServer constructor
         )
         
-        # Явно загружаем модель перед получением FastAPI app
+        # Explicitly load model before getting FastAPI app
         logger.info("Loading the LLM model...")
         if not llama_server._load_model():
             logger.error("Failed to load the model. Exiting.")

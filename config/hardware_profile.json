@@ -55,7 +55,7 @@
       "latency_ms": 54.297863154579204,
       "memory_used_mb": 83,
       "temperature_max": 70.0,
-      "prompt": "Объясни теорию относительности простыми словами.",
+      "prompt": "Explain the theory of relativity in simple terms.",
       "config": {
         "threads": 4,
         "context_size": 2048,

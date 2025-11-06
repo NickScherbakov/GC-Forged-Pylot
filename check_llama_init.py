@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """
-Скрипт проверки и оптимизации системы для запуска llama.cpp.
-Выполняется при первом запуске или при обнаружении изменений в оборудовании.
+Script to check and optimize system for running llama.cpp.
+Executed on first launch or when hardware changes are detected.
 """
 import os
 import sys
@@ -9,13 +9,13 @@ import logging
 import argparse
 from pathlib import Path
 
-# Добавляем проект в путь импорта
+# Add project to import path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.hardware_optimizer import HardwareOptimizer
 from src.core.config import load_config
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -30,17 +30,17 @@ logger = logging.getLogger("check_llama_init")
 
 def check_first_run() -> bool:
     """
-    Проверяет, является ли это первым запуском системы.
+    Checks if this is the first system run.
     
     Returns:
-        bool: True если это первый запуск, иначе False
+        bool: True if first run, False otherwise
     """
-    # Проверяем наличие файла профиля оборудования
+    # Check for hardware profile file
     hardware_profile_path = os.path.join("config", "hardware_profile.json")
     if not os.path.exists(hardware_profile_path):
         return True
     
-    # Проверяем наличие директории bin с скомпилированным сервером
+    # Check for bin directory with compiled server
     bin_dir = os.path.join("bin")
     server_path = os.path.join(bin_dir, "llama-server")
     if platform.system() == "Windows":
@@ -54,66 +54,66 @@ def check_first_run() -> bool:
 
 def check_hardware_changes(optimizer: HardwareOptimizer) -> bool:
     """
-    Проверяет наличие изменений в оборудовании.
+    Checks for hardware changes.
     
     Args:
-        optimizer: Инициализированный оптимизатор
+        optimizer: Initialized optimizer
     
     Returns:
-        bool: True если обнаружены изменения, иначе False
+        bool: True if changes detected, False otherwise
     """
     return optimizer._is_profile_outdated()
 
 
 def perform_optimization(quiet: bool = False, force: bool = False) -> bool:
     """
-    Выполняет оптимизацию системы при необходимости.
+    Performs system optimization if necessary.
     
     Args:
-        quiet: Подавлять вывод
-        force: Принудительная оптимизация
+        quiet: Suppress output
+        force: Force optimization
     
     Returns:
-        bool: True если оптимизация выполнена успешно, иначе False
+        bool: True if optimization successful, False otherwise
     """
     try:
         optimizer = HardwareOptimizer()
         
-        # Проверяем необходимость оптимизации
+        # Check if optimization needed
         is_first_run = check_first_run()
         has_hardware_changes = check_hardware_changes(optimizer)
         
         if is_first_run or has_hardware_changes or force:
             if not quiet:
                 if is_first_run:
-                    logger.info("Первый запуск системы. Выполняем начальную оптимизацию.")
+                    logger.info("First system run. Performing initial optimization.")
                 elif has_hardware_changes:
-                    logger.info("Обнаружены изменения в оборудовании. Выполняем переоптимизацию.")
+                    logger.info("Hardware changes detected. Performing re-optimization.")
                 else:
-                    logger.info("Принудительная оптимизация.")
+                    logger.info("Force optimization.")
             
-            # Загружаем конфигурацию
+            # Load configuration
             config = load_config()
             
-            # Обновляем профиль оборудования
+            # Update hardware profile
             optimizer._update_hardware_profile()
             
-            # Оптимизируем параметры запуска
+            # Optimize launch parameters
             optimizer.optimize_compilation_flags()
             optimizer.optimize_runtime_parameters()
             
-            # Если есть доступная модель, выполняем бенчмаркинг
+            # If model available, run benchmarking
             if os.path.exists(config.model_path):
                 if not quiet:
-                    logger.info(f"Запуск бенчмарка на модели: {config.model_path}")
+                    logger.info(f"Running benchmark on model: {config.model_path}")
                 
                 try:
                     optimizer.run_benchmark(config.model_path, iterations=1)
                 except Exception as e:
                     if not quiet:
-                        logger.warning(f"Не удалось выполнить бенчмаркинг: {e}")
+                        logger.warning(f"Failed to run benchmarking: {e}")
             
-            # Если сервер еще не скомпилирован, пытаемся его собрать
+            # If server not compiled yet, try to build it
             bin_dir = os.path.join("bin")
             server_path = os.path.join(bin_dir, "llama-server")
             if platform.system() == "Windows":
@@ -121,46 +121,46 @@ def perform_optimization(quiet: bool = False, force: bool = False) -> bool:
             
             if not os.path.exists(server_path):
                 if not quiet:
-                    logger.info("Сервер не найден. Пытаемся скомпилировать.")
+                    logger.info("Server not found. Attempting to compile.")
                 
                 try:
-                    # Компиляция сервера (может быть продолжительной!)
+                    # Server compilation (may take a while!)
                     compile_success = optimizer.compile_optimized_server()
                     
                     if not quiet:
                         if compile_success:
-                            logger.info("Сервер успешно скомпилирован.")
+                            logger.info("Server compiled successfully.")
                         else:
-                            logger.warning("Не удалось скомпилировать сервер.")
+                            logger.warning("Failed to compile server.")
                 except Exception as e:
                     if not quiet:
-                        logger.warning(f"Ошибка компиляции сервера: {e}")
+                        logger.warning(f"Server compilation error: {e}")
             
             return True
         else:
             if not quiet:
-                logger.info("Система уже оптимизирована.")
+                logger.info("System already optimized.")
             return True
             
     except Exception as e:
         if not quiet:
-            logger.error(f"Ошибка при оптимизации системы: {e}")
+            logger.error(f"System optimization error: {e}")
         return False
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Проверка и оптимизация системы для запуска llama.cpp"
+        description="Check and optimize system for running llama.cpp"
     )
     parser.add_argument(
         "--quiet", 
         action="store_true", 
-        help="Подавлять вывод сообщений"
+        help="Suppress message output"
     )
     parser.add_argument(
         "--force", 
         action="store_true", 
-        help="Принудительная оптимизация"
+        help="Force optimization"
     )
     
     args = parser.parse_args()

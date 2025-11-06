@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Загрузчик конфигурации
+GC-Forged Pylot - Configuration Loader
 ========================================
 
-Модуль для загрузки конфигурационных файлов в различных форматах.
+Module for loading configuration files in various formats.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os
@@ -18,7 +18,7 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -43,7 +43,7 @@ def load_config(config_path: Union[str, Path], default_config: Optional[Dict[str
     
     config_path = Path(config_path)
     
-    # Проверяем существование файла
+    # Check существование файла
     if not config_path.exists():
         logger.warning(f"Конфигурационный файл не найден: {config_path}, используем значения по умолчанию")
         return default_config or {}
@@ -79,12 +79,12 @@ def save_config(config: Dict[str, Any], config_path: Union[str, Path]) -> bool:
         bool: True, если сохранение успешно, иначе False
     """
     if not config_path:
-        logger.error("Путь для сохранения конфигурации не указан")
+        logger.error("Путь для сохранения configuration не указан")
         return False
     
     config_path = Path(config_path)
     
-    # Создаем родительский каталог, если он не существует
+    # Create parent directory, если он не существует
     os.makedirs(config_path.parent, exist_ok=True)
     
     try:
@@ -93,11 +93,11 @@ def save_config(config: Dict[str, Any], config_path: Union[str, Path]) -> bool:
             logger.info(f"Конфигурация успешно сохранена в {config_path}")
             return True
     except Exception as e:
-        logger.error(f"Ошибка при сохранении конфигурации в {config_path}: {e}")
+        logger.error(f"Ошибка при сохранении configuration в {config_path}: {e}")
         return False
 
 if __name__ == "__main__":
-    # Пример использования
+    # Пример use
     default_config = {
         "server": {
             "host": "localhost",
@@ -118,10 +118,10 @@ if __name__ == "__main__":
     
     sample_config_path = "sample_config.json"
     
-    # Сохраняем пример конфигурации
+    # Сохраняем пример configuration
     save_config(default_config, sample_config_path)
     
-    # Загружаем пример конфигурации
+    # Load пример configuration
     loaded_config = load_config(sample_config_path)
     
     print("Загруженная конфигурация:")

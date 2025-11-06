@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Система планирования
+GC-Forged Pylot - Planning System
 ===================================
 
-Модуль для создания планов действий на основе анализа запросов.
+Module for creating action plans based on request analysis.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import logging
@@ -92,20 +92,20 @@ class Plan:
 
 class Planner:
     """
-    Класс для создания планов действий на основе анализа запросов.
+    Класс для создания action plans на основе анализа запросов.
     
     Использует языковую модель для генерации последовательности
-    шагов, необходимых для выполнения запроса пользователя.
+    шагов, необходимых для execution запроса пользователя.
     """
     
     def __init__(self, llm: LLMInterface, reasoner: Reasoner, config: Dict[str, Any] = None):
         """
-        Инициализирует систему планирования.
+        Инициализирует систему planning.
         
         Args:
             llm: Интерфейс языковой модели
-            reasoner: Система рассуждения
-            config: Конфигурация системы планирования
+            reasoner: Система reasoning
+            config: Конфигурация системы planning
         """
         self.llm = llm
         self.reasoner = reasoner
@@ -113,7 +113,7 @@ class Planner:
         self.enabled = self.config.get("enabled", True)
         self.max_steps = self.config.get("max_steps", 5)
         
-        logger.info(f"Система планирования инициализирована (enabled={self.enabled})")
+        logger.info(f"Система planning инициализирована (enabled={self.enabled})")
     
     def create_plan(self, user_input: str, analysis: Dict[str, Any], context: List[Dict[str, Any]] = None) -> Plan:
         """
@@ -122,7 +122,7 @@ class Planner:
         Args:
             user_input: Запрос пользователя
             analysis: Результат анализа запроса
-            context: Контекст из истории взаимодействия
+            context: Контекст из истории interaction
             
         Returns:
             План действий
@@ -169,7 +169,7 @@ class Planner:
         Args:
             user_input: Запрос пользователя
             analysis: Результат анализа запроса
-            context: Контекст из истории взаимодействия
+            context: Контекст из истории interaction
             
         Returns:
             Промпт для генерации плана
@@ -187,7 +187,7 @@ class Planner:
 - Сложность: {complexity}
 - Необходимые инструменты: {tools_needed}
 
-Разработай пошаговый план действий для выполнения запроса. План должен быть разбит на логические шаги.
+Разработай пошаговый план действий для execution запроса. План должен быть разбит на логические шаги.
 Для каждого шага укажи:
 1. Тип шага (search_info, generate_code, analyze_data, direct_response и т.д.)
 2. Описание шага
@@ -256,7 +256,7 @@ STEP 2:
             elif current_property:
                 current_step[current_property] += " " + line
         
-        # Добавляем последний шаг
+        # Add последний шаг
         if current_step:
             steps.append(current_step)
         

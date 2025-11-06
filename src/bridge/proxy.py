@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 
 """
-GC-Forged Pylot - Прокси для внешних API
+GC-Forged Pylot - Proxy for External APIs
 ========================================
 
-Модуль для взаимодействия с внешними API языковых моделей.
+Module for interacting with external language model APIs.
 
-Автор: GC-Forged Pylot Team
-Дата: 2025
-Лицензия: MIT
+Author: GC-Forged Pylot Team
+Date: 2025
+License: MIT
 """
 
 import os
@@ -24,7 +24,7 @@ import backoff
 from typing import Dict, List, Any, Optional, Union, Callable, Generator, AsyncGenerator
 from urllib.parse import urljoin
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -35,7 +35,7 @@ logger = logging.getLogger("ExternalLLMProxy")
 
 class ExternalLLMProxy:
     """
-    Прокси для взаимодействия с внешними API языковых моделей.
+    Прокси для interaction с внешними API language models.
     
     Позволяет подключаться к внешним API, таким как Ollama, llama.cpp или другие
     совместимые с OpenAI API сервисы.
@@ -73,7 +73,7 @@ class ExternalLLMProxy:
         if api_key:
             self.headers["Authorization"] = f"Bearer {api_key}"
             
-        # Создание сессии для эффективного переиспользования соединений
+        # Создание сессии для эффективного переuse соединений
         self.session = requests.Session()
         self.session.headers.update(self.headers)
         self.session.verify = verify_ssl
@@ -164,7 +164,7 @@ class ExternalLLMProxy:
         
         Args:
             prompt: Текстовый промпт для генерации
-            model: ID модели для использования
+            model: ID модели для use
             max_tokens: Максимальное количество токенов для генерации
             temperature: Температура сэмплирования (0.0-1.0)
             top_p: Параметр nucleus sampling (0.0-1.0)
@@ -261,7 +261,7 @@ class ExternalLLMProxy:
         
         Args:
             prompt: Текстовый промпт для генерации
-            model: ID модели для использования
+            model: ID модели для use
             max_tokens: Максимальное количество токенов для генерации
             temperature: Температура сэмплирования (0.0-1.0)
             top_p: Параметр nucleus sampling (0.0-1.0)
@@ -356,7 +356,7 @@ class ExternalLLMProxy:
         
         Args:
             messages: Список сообщений в формате [{role: "user", content: "текст"}, ...]
-            model: ID модели для использования
+            model: ID модели для use
             temperature: Температура сэмплирования (0.0-1.0)
             max_tokens: Максимальное количество токенов для генерации
             top_p: Параметр nucleus sampling (0.0-1.0)
@@ -481,9 +481,9 @@ class ExternalLLMProxy:
             logger.warning(f"Ошибка при закрытии сессии API: {e}")
 
 
-# Пример использования
+# Пример use
 if __name__ == "__main__":
-    # Пример использования прокси для внешнего API
+    # Пример use прокси для внешнего API
     proxy = ExternalLLMProxy(api_url="http://192.168.2.74:3131/v1")
     
     # Проверка доступности API

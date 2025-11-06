@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """
-Скрипт для оптимизации llama.cpp под конкретное оборудование.
-Анализирует аппаратное обеспечение, компилирует оптимизированную версию сервера
-и создает профиль оптимальных параметров запуска.
+Script to optimize llama.cpp for specific hardware.
+Analyzes hardware, compiles optimized server version,
+and creates a profile of optimal launch parameters.
 """
 import os
 import sys
@@ -11,13 +11,13 @@ import logging
 import time
 from pathlib import Path
 
-# Добавляем проект в путь импорта
+# Add project to import path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from src.core.hardware_optimizer import HardwareOptimizer
 from src.core.config import load_config
 
-# Настройка логирования
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -32,65 +32,65 @@ logger = logging.getLogger("optimize_llama")
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Оптимизация llama.cpp под конкретное оборудование"
+        description="Optimize llama.cpp for specific hardware"
     )
     parser.add_argument(
         "--model", 
         type=str, 
-        help="Путь к файлу модели для бенчмаркинга"
+        help="Path to model file for benchmarking"
     )
     parser.add_argument(
         "--compile", 
         action="store_true", 
-        help="Скомпилировать оптимизированную версию сервера"
+        help="Compile optimized server version"
     )
     parser.add_argument(
         "--benchmark", 
         action="store_true", 
-        help="Запустить бенчмарк"
+        help="Run benchmark"
     )
     parser.add_argument(
         "--llama-cpp", 
         type=str, 
-        help="Путь к исходникам llama.cpp"
+        help="Path to llama.cpp sources"
     )
     parser.add_argument(
         "--prompt", 
         type=str, 
-        help="Текст для бенчмарка", 
-        default="Объясни теорию относительности простыми словами."
+        help="Text for benchmark", 
+        default="Explain the theory of relativity in simple terms."
     )
     parser.add_argument(
         "--iterations", 
         type=int, 
-        help="Количество итераций бенчмарка", 
+        help="Number of benchmark iterations", 
         default=3
     )
     parser.add_argument(
         "--force", 
         action="store_true", 
-        help="Принудительно запустить оптимизацию, даже если профиль актуален"
+        help="Force optimization even if profile is current"
     )
     parser.add_argument(
         "--skip-compilation", 
         action="store_true", 
-        help="Пропустить этап компиляции сервера (для систем без инструментов разработки)"
+        help="Skip server compilation stage (for systems without development tools)"
     )
     
     args = parser.parse_args()
     
-    # Инициализируем оптимизатор
+    # Initialize optimizer
     optimizer = HardwareOptimizer()
     
     if args.force:
-        # Принудительно создаем новый профиль при запуске с --force
-        logger.info("Принудительное создание нового профиля оптимизации")
+        # Force create new profile when running with --force
+        logger.info("Force creating new optimization profile")
         optimizer._create_new_profile()
     
-    # Определяем путь к модели
+    # Determine model path
     model_path = args.model
     if not model_path:
-        # Если путь не указан, пробуем загрузить из конфига
+        # If path not specified, try loading from config
         config = load_config()
         model_path = config.model_path
         
@@ -99,67 +99,67 @@ def main():
             model_path = None
     
     if args.compile or (args.model is None and not args.benchmark):
-        # Компилируем оптимизированную версию сервера
+        # Compile optimized server version
         if args.skip_compilation:
-            logger.info("Этап компиляции пропущен (--skip-compilation)")
+            logger.info("Compilation stage skipped (--skip-compilation)")
         else:
-            logger.info("Запуск компиляции оптимизированного сервера")
+            logger.info("Starting optimized server compilation")
             start_time = time.time()
             success = optimizer.compile_optimized_server(args.llama_cpp)
             
             if success:
-                logger.info(f"Сервер успешно скомпилирован за {time.time() - start_time:.1f} сек")
+                logger.info(f"Server compiled successfully in {time.time() - start_time:.1f} sec")
             else:
-                logger.error("Не удалось скомпилировать сервер")
+                logger.error("Failed to compile server")
                 return 1
     
     if args.benchmark and model_path:
-        # Запускаем бенчмарк
-        logger.info(f"Запуск бенчмарка на модели: {model_path}")
+        # Run benchmark
+        logger.info(f"Running benchmark on model: {model_path}")
         start_time = time.time()
         
         if args.skip_compilation:
-            # Используем имитацию бенчмарка, если сервер недоступен
-            logger.info("Используем имитационный бенчмарк (--skip-compilation)")
+            # Use mock benchmark if server unavailable
+            logger.info("Using mock benchmark (--skip-compilation)")
             result = optimizer.run_mock_benchmark(
                 model_path=model_path,
                 prompt=args.prompt,
                 iterations=args.iterations
             )
         else:
-            # Используем реальный бенчмарк
+            # Use real benchmark
             result = optimizer.run_benchmark(
                 model_path=model_path,
                 prompt=args.prompt,
                 iterations=args.iterations
             )
         
-        logger.info(f"Бенчмарк завершен за {time.time() - start_time:.1f} сек")
-        logger.info(f"Результаты: {result.tokens_per_second:.2f} токенов/сек, "
-                  f"латентность: {result.latency_ms:.2f} мс")
+        logger.info(f"Benchmark completed in {time.time() - start_time:.1f} sec")
+        logger.info(f"Results: {result.tokens_per_second:.2f} tokens/sec, "
+                  f"latency: {result.latency_ms:.2f} ms")
     else:
-        # Просто обновляем профиль оборудования и параметры
+        # Simply update hardware profile and parameters
         if model_path:
-            # Полная оптимизация с бенчмаркингом
-            logger.info("Запуск полной оптимизации с бенчмаркингом")
+            # Full optimization with benchmarking
+            logger.info("Starting full optimization with benchmarking")
             results = optimizer.run_optimization(model_path)
-            logger.info(f"Оптимизация завершена. Оптимальные параметры запуска:")
-            logger.info(f"- Потоки: {results['runtime_parameters']['n_threads']}")
-            logger.info(f"- Контекст: {results['runtime_parameters']['n_ctx']}")
-            logger.info(f"- Размер батча: {results['runtime_parameters']['batch_size']}")
-            logger.info(f"- GPU слои: {results['runtime_parameters']['n_gpu_layers']}")
+            logger.info(f"Optimization complete. Optimal launch parameters:")
+            logger.info(f"- Threads: {results['runtime_parameters']['n_threads']}")
+            logger.info(f"- Context: {results['runtime_parameters']['n_ctx']}")
+            logger.info(f"- Batch size: {results['runtime_parameters']['batch_size']}")
+            logger.info(f"- GPU layers: {results['runtime_parameters']['n_gpu_layers']}")
         else:
-            # Оптимизация без бенчмаркинга
-            logger.info("Запуск оптимизации без бенчмаркинга (не указан путь к модели)")
+            # Optimization without benchmarking
+            logger.info("Starting optimization without benchmarking (model path not specified)")
             optimizer._update_hardware_profile()
             compilation_flags = optimizer.optimize_compilation_flags()
             runtime_params = optimizer.optimize_runtime_parameters()
             
-            logger.info("Оптимизация завершена. Предполагаемые оптимальные параметры:")
-            logger.info(f"- Потоки: {runtime_params.n_threads}")
-            logger.info(f"- Контекст: {runtime_params.n_ctx}")
-            logger.info(f"- Размер батча: {runtime_params.batch_size}")
-            logger.info(f"- GPU слои: {runtime_params.n_gpu_layers}")
+            logger.info("Optimization complete. Estimated optimal parameters:")
+            logger.info(f"- Threads: {runtime_params.n_threads}")
+            logger.info(f"- Context: {runtime_params.n_ctx}")
+            logger.info(f"- Batch size: {runtime_params.batch_size}")
+            logger.info(f"- GPU layers: {runtime_params.n_gpu_layers}")
     
     return 0
 
