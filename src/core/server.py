@@ -134,44 +134,70 @@ class ModelCache:
 
 
 class LlamaServer:
-    """
-    A wrapper around llama.cpp that provides enhanced functionality
-    for IDE integration and continuous operation.
-    """
-    
-    def __init__(self, model_path: str, n_ctx: int = 2048, n_gpu_layers: int = 0, verbose: bool = False, cache_config: dict = None, api_keys: list = None):
-        """
-        Initialize the LlamaServer with model path and configuration.
-        
+    """Wrapper around llama.cpp exposing FastAPI endpoints and caching."""
+
+    def __init__(
+        self,
+        model_path: str,
+        n_ctx: int = 2048,
+        n_gpu_layers: int = 0,
+        n_threads: int = 4,
+        verbose: bool = False,
+        tensor_split: list = None,
+        cache_config: dict = None,
+        api_keys: list = None,
+    ):
+        """Initialize server.
+
         Args:
-            model_path: Path to the GGUF model file
-            config: Configuration dictionary or object
+            model_path: Path to GGUF model file (must exist)
+            n_ctx: Context window size
+            n_gpu_layers: GPU layers to offload (0 = CPU only)
+            n_threads: CPU threads for inference
+            verbose: Verbose logging for llama.cpp
+            tensor_split: Optional tensor split list for multi-GPU
+            cache_config: Dict with cache settings (size, ttl)
+            api_keys: Optional list of API keys for auth logic (future use)
         """
         self.model_path = model_path or os.environ.get("GC_MODEL_PATH")
+        # Internal unified configuration dictionary
         self.config = {
             "n_ctx": n_ctx,
             "n_gpu_layers": n_gpu_layers,
+            "n_threads": n_threads,
             "verbose": verbose,
-            **(cache_config or {}),
-            **(api_keys or {})
+            "tensor_split": tensor_split or [],
         }
+        # Merge cache settings if provided
+        if cache_config:
+            # Normalize keys
+            if "size" in cache_config and "cache_size" not in cache_config:
+                cache_config["cache_size"] = cache_config["size"]
+            if "ttl" in cache_config and "cache_ttl" not in cache_config:
+                cache_config["cache_ttl"] = cache_config["ttl"]
+            self.config.update({k: v for k, v in cache_config.items() if v is not None})
+
+        # Store API keys separately to avoid incorrect dict unpacking
+        self.api_keys = api_keys or []
+
         self.running = False
         self.server_thread = None
         self.app = FastAPI(
             title="Local Llama Server",
             description="OpenAI-compatible API for local Llama models",
-            version="0.1.0"
+            version="0.1.0",
         )
         self._configure_routes()
-        self._configure_middleware() # Add middleware configuration if needed
+        self._configure_middleware()
         self._llm_instance = None
         self._cache = ModelCache(
-            max_size=self.config.get("cache_size", 100),
-            ttl=self.config.get("cache_ttl", 3600)
+            max_size=self.config.get("cache_size", 100), ttl=self.config.get("cache_ttl", 3600)
         )
         self._active_connections = set()
         self._validate_setup()
-        logger.info(f"LlamaServer initialized with model: {self.model_path}")
+        logger.info(
+            f"LlamaServer initialized with model: {self.model_path} (ctx={n_ctx}, threads={n_threads}, gpu_layers={n_gpu_layers})"
+        )
         
     def _validate_setup(self):
         """Ensure the server is properly configured."""
@@ -184,27 +210,31 @@ class LlamaServer:
             raise FileNotFoundError(f"Model file not found: {self.model_path}")
             
     def _load_model(self):
-        """Load the language model using llama-cpp-python."""
+        """Load the language model using llama-cpp-python (CPU-only by default)."""
         try:
-            # Ограничиваем использование memory для модели на основе доступной системной memory
             import psutil
-            avail_memory = psutil.virtual_memory().available / (1024 * 1024 * 1024)  # GB
+            avail_memory = psutil.virtual_memory().available / (1024 * 1024 * 1024)
             logger.info(f"Available system memory: {avail_memory:.2f} GB")
-            
-            # Определяем конфигурацию для модели на основе доступной memory
+
             model_config = self.config.copy()
-            
-            # Определяем тип квантизации на основе доступной memory и настроек пользователя
+
+            # Auto 4-bit quantization suggestion (informational; actual selection occurs in llama.cpp conversion stage)
             if avail_memory < 8 and not model_config.get("quantization_type"):
-                logger.info("Low memory detected, using 4-bit quantization")
                 model_config["quantization_type"] = "q4_0"
-            
-            # Create экземпляр LLamaLLM
-            self._llm_instance = LLamaLLM({
+                logger.info("Suggesting 4-bit quantization due to low available memory")
+
+            # Harmonize key names expected by LLamaLLM
+            llm_args = {
                 "model_path": self.model_path,
-                "n_ctx": model_config.get("context_size", 4096),
-                "n_threads": model_config.get("threads"),
-                "n_gpu_layers": model_config.get("gpu_layers", -1 if model_config.get("use_gpu", True) else 0),
+                "n_ctx": model_config.get("n_ctx", model_config.get("context_size", 4096)),
+                "n_threads": model_config.get("n_threads", model_config.get("threads", 4)),
+                "n_gpu_layers": model_config.get(
+                    "n_gpu_layers",
+                    model_config.get(
+                        "gpu_layers",
+                        -1 if model_config.get("use_gpu", True) else 0,
+                    ),
+                ),
                 "use_gpu": model_config.get("use_gpu", True),
                 "gpu_backend": model_config.get("gpu_backend"),
                 "gpu_device": model_config.get("gpu_device", 0),
@@ -213,10 +243,16 @@ class LlamaServer:
                 "use_mlock": model_config.get("use_mlock", True),
                 "use_mmap": model_config.get("use_mmap", True),
                 "rope_scaling_type": model_config.get("rope_scaling_type"),
-                "rope_scaling_factor": model_config.get("rope_scaling_factor", 1.0)
-            })
-            
-            logger.info("Model loaded successfully")
+                "rope_scaling_factor": model_config.get("rope_scaling_factor", 1.0),
+            }
+
+            self._llm_instance = LLamaLLM(llm_args)
+            logger.info(
+                "Model load attempted (may be stub if llama-cpp-python missing). Context=%s Threads=%s GPU Layers=%s",
+                llm_args["n_ctx"],
+                llm_args["n_threads"],
+                llm_args["n_gpu_layers"],
+            )
             return True
         except Exception as e:
             logger.error(f"Failed to load model: {e}")
@@ -225,6 +261,17 @@ class LlamaServer:
     def _configure_routes(self):
         # Определяем модели для API если доступен FastAPI
         if FASTAPI_AVAILABLE:
+            # Simple Bearer token auth when API keys are configured
+            async def require_auth(request: Request):
+                if not self.api_keys:
+                    return True
+                auth = request.headers.get("Authorization", "")
+                if not auth.startswith("Bearer "):
+                    raise HTTPException(status_code=401, detail="Unauthorized")
+                token = auth.split(" ", 1)[1].strip()
+                if token not in self.api_keys:
+                    raise HTTPException(status_code=401, detail="Unauthorized")
+                return True
             # Create модели данных
             class CompletionRequest(BaseModel):
                 prompt: str
@@ -272,7 +319,7 @@ class LlamaServer:
                 }
                 
             @self.app.get("/v1/models")
-            async def list_models():
+            async def list_models(_: bool = Depends(require_auth)):
                 """List available models."""
                 model_name = os.path.basename(self.model_path) if self.model_path else "unknown"
                 
@@ -292,7 +339,7 @@ class LlamaServer:
                 }
                 
             @self.app.post("/v1/completions")
-            async def create_completion(request: CompletionRequest):
+            async def create_completion(request: CompletionRequest, _: bool = Depends(require_auth)):
                 """Create a completion for the given prompt."""
                 if not self._llm_instance:
                     raise HTTPException(status_code=503, detail="Model not loaded")
@@ -364,7 +411,7 @@ class LlamaServer:
                     raise HTTPException(status_code=500, detail=str(e))
                 
             @self.app.post("/v1/chat/completions")
-            async def create_chat_completion(request: ChatRequest):
+            async def create_chat_completion(request: ChatRequest, _: bool = Depends(require_auth)):
                 """Create a chat completion."""
                 if not self._llm_instance:
                     raise HTTPException(status_code=503, detail="Model not loaded")
@@ -543,24 +590,22 @@ class LlamaServer:
                     
             @self.app.get("/v1/config")
             async def get_config():
-                """Get current server configuration."""
-                # Возвращаем безопасную копию конфига без чувствительной информации
-                safe_config = {k: v for k, v in self.config.items() if k not in ["api_key", "secret"]}
-                return {"config": safe_config}
+                """Return current server configuration (sanitized)."""
+                safe = {k: v for k, v in self.config.items() if k not in ["api_key", "secret"]}
+                return {"config": safe, "api_keys_count": len(self.api_keys)}
                 
             @self.app.post("/v1/config")
             async def update_config(config: Dict[str, Any]):
-                """Update server configuration."""
-                # Update конфигурацию
+                """Update runtime configuration (requires manual restart for model params)."""
                 for key, value in config.items():
                     self.config[key] = value
-                    
-                # Если конфигурация модели изменена, нужна перезагрузка
-                model_config_keys = ["n_ctx", "n_threads", "n_gpu_layers", "use_gpu"]
-                if any(key in model_config_keys for key in config.keys()):
-                    logger.info("Model configuration changed, reload required")
-                    
-                return {"status": "success", "config": {k: v for k, v in self.config.items() if k not in ["api_key", "secret"]}}
+
+                model_keys = {"n_ctx", "n_threads", "n_gpu_layers", "use_gpu"}
+                if any(k in model_keys for k in config.keys()):
+                    logger.info("Model-related configuration changed; restart required for effect")
+
+                safe = {k: v for k, v in self.config.items() if k not in ["api_key", "secret"]}
+                return {"status": "success", "config": safe}
                 
         # Готово, возвращаем True
         logger.info("API endpoints configured successfully")
